@@ -2,3 +2,4 @@ iterator
 vector
 temp.cpp
 *.out
+.vscode
