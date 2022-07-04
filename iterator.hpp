@@ -51,6 +51,7 @@ namespace ft {
 	template<typename It>
 	class vector_iterator {
 	public:
+		typedef It													iterator_type;
 		typedef typename ft::iterator_traits<It>::value_type		value_type;
 		typedef typename ft::iterator_traits<It>::difference_type	difference_type;
 		typedef typename ft::iterator_traits<It>::pointer			pointer;
@@ -59,13 +60,117 @@ namespace ft {
 	private:
 		pointer	_p;
 	public:
+		vector_iterator() {}
 		vector_iterator(pointer p): _p(p) {}
-		~vector_iterator() {};
+		~vector_iterator() {}
 		template<typename Up>
 		vector_iterator(const vector_iterator<Up>& ref) {
-			if (typeid(ft::iterator_traits<Up>::iterator_category) != typeid(ft::random_access_iterator_tag))
-				throw ;
-			_p = ref._p;
+			this = ref;
+		}
+
+		template<typename Up>
+		vector_iterator&	operator=(const vector_iterator<Up>& ref) {
+			if (!ref != *this) {
+				_p = ref._p;
+			}
+			return (*this);
+		}
+		reference	operator*() const {
+			return (*_p);
+		}
+
+		pointer		operator->() const {
+			return (_p);
+		}
+
+		const vector_iterator&	operator++() {
+			++_p;
+			return (*this);
+		}
+
+		const vector_iterator	operator++(int) {
+			vector_iterator<It> temp(*this);
+			++(*this);
+			return (temp);
+		}
+
+		const vector_iterator&	operator--() {
+			--_p;
+			return (*this);
+		}
+
+		const vector_iterator	operator--(int) {
+			vector_iterator<It> temp(*this);
+			--(*this);
+			return (temp);
+		}
+
+		const vector_iterator&	operator+=(difference_type size) {
+			_p += size;
+			return (*this);
+		}
+
+		const vector_iterator	operator+(difference_type size) const {
+			vector_iterator<It> temp(*this);
+			temp += size;
+			return (temp);
+		}
+
+		const vector_iterator	operator-=(difference_type size) {
+			_p += (-size);
+			return (*this);
+		}
+
+		const vector_iterator	operator-(difference_type size) const {
+			vector_iterator<It> temp(*this);
+			temp -= size;
+			return (temp);
+		}
+
+		const reference	operator[](difference_type idx) const {
+			return (*(_p + idx));
+		}
+
+		template <typename It1>
+		const friend vector_iterator<It1>	operator+(difference_type size, const vector_iterator<It1>& vit) {
+			vector_iterator<It1> temp(vit);
+			temp += size;
+			return (temp);
+		}
+
+		template <typename It1, typename It2>
+		const friend difference_type	operator-(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+			return (vit1._p - vit2._p);
+		}
+
+		template <typename It1, typename It2>
+		const friend bool	operator==(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+			return (vit1._p == vit2._p);	
+		}
+
+		template <typename It1, typename It2>
+		const friend bool	operator!=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+			return (!(vit1 == vit2));	
+		}
+
+		template <typename It1, typename It2>
+		const friend bool	operator>(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+			return (vit1 - vit2 > 0);	
+		}
+
+		template <typename It1, typename It2>
+		const friend bool	operator<(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+			return (vit1 - vit2 < 0);	
+		}
+
+		template <typename It1, typename It2>
+		const friend bool	operator>=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+			return !(vit1 < vit2);
+		}
+
+		template <typename It1, typename It2>
+		const friend bool	operator<=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+			return !(vit1 > vit2);
 		}
 	};
 }
