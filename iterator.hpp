@@ -75,6 +75,11 @@ namespace ft {
 			}
 			return (*this);
 		}
+
+		const pointer	base() const {
+			return (_p);
+		}
+
 		reference	operator*() const {
 			return (*_p);
 		}
