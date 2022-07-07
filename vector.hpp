@@ -28,37 +28,35 @@ namespace ft {
 			size_type		_capacity;
 			size_type		_size;
 
+			void	_copy_value(iterator t_begin) {
+				iterator	temp;
+
+				if (_begin == _end)
+					return ;
+				temp = t_begin;
+				for (iterator it = _begin; it < _end; it++)
+					*(temp++) = *it;	
+			}
+
 			void	_allocate(size_type n) {
 				iterator	t_begin;
 
 				if (_capacity >= n)
 					return ;
+				_capacity = (_capacity == 0) ? n : _capacity * 2;
 				try {
 					t_begin = iterator(_alloc.allocate(n));
+					_copy_value(t_begin);
 					_alloc.destroy(_begin.base());
 					_begin = t_begin;
-					_end = _begin + n;
-					_capacity = n;
+					_end = _begin + _size;
 				} catch (std::bad_alloc& err) {
 					std::cout << "allocate_error\n";
 				}
 			}
 
-			// void	_reallocate() {
-			// 	try {
-			// 		iterator new_begin = iterator(_alloc.allocate(_capacity * 2));
-			// 		iterator new_end = iterator(new_begin + _size);
-			// 		for (int i = 0; i < _size; i++)
-			// 			new_begin[i] = _begin[i];
-			// 		_alloc.destroy(_begin._p);
-			// 		_begin = new_begin;
-			// 		_end = new_end;
-			// 	} catch (std::bad_alloc& err) {
-			// 		std::cout << "allocate error\n";
-			// 	}
-			// }
 		public:	
-		//캐노니컬폼
+		//Constructor, Destructor, Assign operator
 			explicit vector (const allocator_type& alloc = allocator_type())
 				: _alloc(alloc), _begin(iterator(0)), _end(iterator(0)), _capacity(0), _size(0) {}
 
@@ -80,7 +78,109 @@ namespace ft {
 				std::cout << "destruct call\n";
 			}
 			vector& operator=( const vector& other );
-		
+					iterator begin() {
+				return (_begin);
+			}
+		//Iterator
+			const_iterator begin() const {
+				return (static_cast<const_iterator>(_begin));
+			}
+
+			iterator end() {
+				return (_end);
+			}
+
+			const_iterator end() const {
+				reutrn (static_cast<const_iterator>(_end));
+			}
+		//Capacity
+			size_type	capacity(void) const {
+				return (_capacity);
+			}
+
+			size_type	size(void) const {
+				return (_size);
+			}
+
+			void	resize(size_type n, value_type val = value_type()) {
+				if (n < _size) {
+					_size = n;
+					_end = _begin + n;	
+				}
+				else if (n > _size && n <= _capacity) {
+					for (iterator it = _end; it < _begin + n; it++)
+						*it = val;
+					_end += n;
+					_size = n;
+				}
+				else if (n > _capacity) {
+					_allocate(n);
+					for (iterator it = _end; it < _begin + n; it++)
+						*it = val;
+					_end = _begin + n;
+					_size = n;
+				}
+			}
+
+			size_type	max_size(void) const {
+				return (_alloc.max_size());
+			}
+
+			bool empty() const {
+				return (_size == 0);
+			}
+
+			void reserve (size_type n) {
+				iterator	t_begin;
+
+				if (_capacity >= n)
+					return ;
+				_capacity = n;
+				try {
+					t_begin = iterator(_alloc.allocate(n));
+					_copy_value(t_begin);
+					_alloc.destroy(_begin.base());
+					_begin = t_begin;
+					_end = _begin + _size;
+				} catch (std::bad_alloc& err) {
+					std::cout << "allocate_error\n";
+				}
+			}
+		//Element Access
+			reference operator[] (size_type n) {
+				return (*(_begin + n));
+			}
+
+			const_reference operator[] (size_type n) const {
+				return (*(_begin + n));
+			}
+
+			reference at (size_type n) {
+				if (n >= _size) throw std::out_of_range("vector");
+				return (*(_begin + n));
+			}
+
+			const_reference at (size_type n) const {
+				if (n >= _size) throw std::out_of_range("vector");
+				return (*(_begin + n));
+			}
+
+			reference front() {
+				return (*_begin);
+			}
+
+			const_reference front() const {
+				return (*_begin);
+			}
+
+			reference back() {
+				return (*(_end - 1));
+			}
+
+			const_reference back() const {
+				return (*(_end - 1));
+			}
+
 			void assign( size_type count, const T& value ) {
 				_allocate(count);
 				for (int i = 0; i < _capacity; i++) {
@@ -105,30 +205,6 @@ namespace ft {
 				for (InputIt it = first; it != last; it++) {
 					_begin[--size] = *it;
 				}
-			}
-
-			iterator begin() {
-				return (_begin);
-			}
-
-			const_iterator begin() const {
-				return (static_cast<const_iterator>(_begin));
-			}
-
-			iterator end() {
-				return (_end);
-			}
-
-			const_iterator end() const {
-				reutrn (static_cast<const_iterator>(_end));
-			}
-
-			size_type	capacity(void) const {
-				return (_capacity);
-			}
-
-			size_type	size(void) const {
-				return (_size);
 			}
 	}; 
 }
