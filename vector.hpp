@@ -4,6 +4,9 @@
 #include <memory>
 #include <iostream>
 #include "iterator.hpp"
+#include "enable_if.hpp"
+#include "is_integral.hpp"
+#include "is_input_iterator.hpp"
 
 namespace ft {
 	template<
@@ -180,7 +183,7 @@ namespace ft {
 			const_reference back() const {
 				return (*(_end - 1));
 			}
-
+		// Modifiers
 			void assign( size_type count, const T& value ) {
 				_allocate(count);
 				for (int i = 0; i < _capacity; i++) {
@@ -193,10 +196,12 @@ namespace ft {
 				_end = _begin + _size;
 			}
 
-			template< class InputIt >
+			template< typename InputIt, 
+			typename ft::enable_if<ft::is_input_iterator<InputIt>::value, InputIt >::type = 0>
 			void assign( InputIt first, InputIt last ) {
 				size_type	size = 0;
 
+				std::cout << "Non Int\n";
 				for (InputIt it = first; it != last; it++)
 					size++;
 				_allocate(size);
