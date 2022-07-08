@@ -65,13 +65,13 @@ namespace ft {
 		~vector_iterator() {}
 		template<typename Up>
 		vector_iterator(const vector_iterator<Up>& ref) {
-			this = ref;
+			*this = ref;
 		}
 
 		template<typename Up>
 		vector_iterator&	operator=(const vector_iterator<Up>& ref) {
-			if (!ref != *this) {
-				_p = ref._p;
+			if (ref != *this) {
+				_p = ref.base();
 			}
 			return (*this);
 		}

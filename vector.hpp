@@ -197,18 +197,18 @@ namespace ft {
 			}
 
 			template< typename InputIt, 
-			typename ft::enable_if<ft::is_input_iterator<InputIt>::value, InputIt >::type = 0>
+			typename ft::enable_if<ft::is_input_iterator<InputIt>::value, int >::type>
 			void assign( InputIt first, InputIt last ) {
 				size_type	size = 0;
 
-				std::cout << "Non Int\n";
 				for (InputIt it = first; it != last; it++)
 					size++;
 				_allocate(size);
 				_size = size;
 				_end = _begin + _size;
+				size = 0;
 				for (InputIt it = first; it != last; it++) {
-					_begin[--size] = *it;
+					_begin[size++] = *it;
 				}
 			}
 	}; 

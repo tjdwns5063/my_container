@@ -9,6 +9,12 @@ namespace ft {
     struct enable_if<true, T> {
         typedef T type;
     };
+
+    template <>
+    struct enable_if<true, int> {
+        typedef int type;
+    };
+    
 }
 
 #endif
