@@ -49,7 +49,10 @@ int main(void) {
         v.push_back(i + 1);
         mv.push_back(i + 1);
     }
-    v.erase(v.begin() + 5);
+    v.erase(v.end() - 7, v.end());
+    mv.erase(mv.end() - 7, mv.end());
+    // v.erase(v.end() - 1);
+    // mv.erase(mv.end() - 2);
     // v.insert(v.end(), 14);
     // v.insert(v.end(), 14);
     // v.insert(v.end(), 14);

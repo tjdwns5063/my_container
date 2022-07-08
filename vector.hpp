@@ -277,6 +277,20 @@ namespace ft {
 				_size += len;
 				_end += len;
 			}
+
+			iterator erase (iterator position) {
+				for (iterator it = position; it != _end; it++)
+					*it = *(it + 1);
+				_size -= 1;
+				_end -= 1;
+				return (position);
+			}
+
+			iterator erase (iterator first, iterator last) {
+				for (int i = 0; i < last - first; i++)
+					erase(first);
+				return (first);
+			}
 	};
 }
 
