@@ -31,26 +31,27 @@ namespace ft {
 			size_type		_capacity;
 			size_type		_size;
 
-			void	_copy_value(iterator t_begin) {
+			void	_copy_value(iterator& t_begin, size_type capacity) {
 				iterator	temp;
 
 				if (_begin == _end)
 					return ;
 				temp = t_begin;
 				for (iterator it = _begin; it < _end; it++)
-					*(temp++) = *it;	
+					*(temp++) = *it;
+				_alloc.deallocate(_begin.base(), capacity);
 			}
 
 			void	_allocate(size_type n) {
 				iterator	t_begin;
+				size_type	capacity = _capacity;
 
 				if (_capacity >= n)
 					return ;
 				_capacity = (_capacity == 0) ? n : _capacity * 2;
 				try {
-					t_begin = iterator(_alloc.allocate(n));
-					_copy_value(t_begin);
-					_alloc.destroy(_begin.base());
+					t_begin = iterator(_alloc.allocate(_capacity));
+					_copy_value(t_begin, capacity);
 					_begin = t_begin;
 					_end = _begin + _size;
 				} catch (std::bad_alloc& err) {
@@ -64,7 +65,7 @@ namespace ft {
 				: _alloc(alloc), _begin(iterator(0)), _end(iterator(0)), _capacity(0), _size(0) {}
 
 			explicit vector (size_type n, const value_type& val = value_type(),
-                 const allocator_type& alloc = allocator_type()): _alloc(alloc), _capacity(0), _size(0) {
+                 const allocator_type& alloc = allocator_type()): _alloc(alloc), _begin(iterator(0)), _end(iterator(0)), _capacity(0), _size(0) {
 					assign(n, 0);
 				 }
 
@@ -77,7 +78,7 @@ namespace ft {
 			vector (const vector& x);
 
 			~vector() {
-				_alloc.destroy(_begin.base());
+				_alloc.deallocate(_begin.base(), _capacity);
 				std::cout << "destruct call\n";
 			}
 			vector& operator=( const vector& other );
@@ -142,7 +143,7 @@ namespace ft {
 				try {
 					t_begin = iterator(_alloc.allocate(n));
 					_copy_value(t_begin);
-					_alloc.destroy(_begin.base());
+					_alloc.deallocate(_begin.base(), _capacity);
 					_begin = t_begin;
 					_end = _begin + _size;
 				} catch (std::bad_alloc& err) {
@@ -211,7 +212,15 @@ namespace ft {
 					_begin[size++] = *it;
 				}
 			}
-	}; 
+
+			void push_back( const value_type& val ) {
+				if (_size >= _capacity)
+					_allocate(_capacity + 1);
+				*(_end) = val;
+				_end += 1;
+				_size += 1;
+			}
+	};
 }
 
 #endif
