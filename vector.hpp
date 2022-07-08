@@ -37,7 +37,7 @@ namespace ft {
 				if (_begin == _end)
 					return ;
 				temp = t_begin;
-				for (iterator it = _begin; it < _end; it++)
+				for (iterator it = _begin; it != _end; it++)
 					*(temp++) = *it;
 				_alloc.deallocate(_begin.base(), capacity);
 			}
@@ -80,6 +80,7 @@ namespace ft {
 			~vector() {
 				_alloc.deallocate(_begin.base(), _capacity);
 				std::cout << "destruct call\n";
+				// system("leaks a.out");
 			}
 			vector& operator=( const vector& other );
 					iterator begin() {
@@ -219,6 +220,62 @@ namespace ft {
 				*(_end) = val;
 				_end += 1;
 				_size += 1;
+			}
+
+			void pop_back() {
+				_size -= 1;
+				_end[_size] = 0;
+				_end -= 1;
+			}
+
+			iterator insert (iterator position, const value_type& val) {
+				size_type	offset;
+
+				offset = position - _begin;
+				_allocate(_size + 1);
+				for (iterator it = _end; it != _begin + offset; it--) {
+					*it = *(it - 1);
+				}
+				*(_begin + offset) = val;
+				_size += 1;
+				_end += 1;
+				return (_begin + offset);
+			}
+
+			void insert (iterator position, size_type n, const value_type& val) {
+				size_type	offset;
+
+				offset = position - _begin;
+				_allocate(_size + n);
+				for (iterator it = _end + n; it != _begin + offset; it--) {
+					*it = *(it - n);
+				}
+				for (iterator it = _begin + offset; it != _begin + offset + n; it++) {
+					*it = val;
+				}
+				_size += n;
+				_end += n;
+			}
+
+			template< typename InputIt, 
+			typename ft::enable_if<ft::is_input_iterator<InputIt>::value, int >::type>
+    		void insert( iterator position, InputIt first, InputIt last ) {
+				size_type	offset = position - _begin;
+				size_type	len;
+				iterator	pos;
+
+				offset = position - _begin;
+				len = 0;
+				for (InputIt it = first; it != last; it++)
+					++len;
+				_allocate(_size + len);
+				for (iterator it = _end + len; it != _begin + offset; it--)
+					*it = *(it - len);
+				pos = _begin + offset;
+				for (InputIt it = first; it != last; it++)
+					*(pos++) = *it;
+				_size += len;
+				_end += len;
 			}
 	};
 }

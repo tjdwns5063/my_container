@@ -23,10 +23,11 @@ void    print_vec(T& vec) {
 }
 
 int main(void) {
-    ft::vector<int> v;
+    std::vector<int> v;
     ft::vector<int> mv;
 
     std::vector<int> temp;
+    std::vector<int> temp2;
 
     temp.push_back(3);
     temp.push_back(3);
@@ -39,15 +40,24 @@ int main(void) {
     // mv.assign<ft::vector<int>::iterator, 0>(temp.begin(), temp.end());
     // mv.assign(5, 3);
     // v.assign(5, 3);
-    mv.assign<std::vector<int>::iterator, 0>(temp.begin(), temp.end());
-    v.assign<std::vector<int>::iterator, 0>(temp.begin(), temp.end());
+    // mv.assign<std::vector<int>::iterator, 0>(temp.begin(), temp.end());
+    // v.assign(temp.begin(), temp.end());
+    // temp2.assign(3, 14);
     
 
     for (int i = 0; i < 13; i++) {
         v.push_back(i + 1);
         mv.push_back(i + 1);
     }
-    // std::cout << "hereee\n";
+    v.erase(v.begin() + 5);
+    // v.insert(v.end(), 14);
+    // v.insert(v.end(), 14);
+    // v.insert(v.end(), 14);
+    // v.insert(v.end() - 3, temp2.begin(), temp2.end());
+    // mv.insert(mv.end(), 14);
+    // mv.insert(mv.end(), 14);
+    // mv.insert(mv.end(), 14);
+    // mv.insert<std::vector<int>::iterator, 0>(mv.end() - 3, temp2.begin(), temp2.end());
     std::cout << "v_capacity: " << v.capacity() << '\n';
     std::cout << "v_size: " << v.size() << '\n';
     print_vec(v);
@@ -55,7 +65,4 @@ int main(void) {
     std::cout << "mv_capacity: " << mv.capacity() << '\n';
     std::cout << "mv_size: " << mv.size() << '\n';
     print_vec(mv);
-
-    std::cout << *(v.begin().base()) << '\n';
-    std::cout << *(mv.begin().base() + 12) << '\n';
 }
