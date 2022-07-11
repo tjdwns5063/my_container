@@ -326,6 +326,10 @@ namespace ft {
 				_end = _begin;
 				_size = 0;
 			}
+		// Allocator
+			allocator_type get_allocator() const {
+				return (_alloc);
+			}
 	};
 }
 
