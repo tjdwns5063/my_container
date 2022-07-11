@@ -260,7 +260,7 @@ namespace ft {
 			template< typename InputIt, 
 			typename ft::enable_if<ft::is_input_iterator<InputIt>::value, int >::type>
     		void insert( iterator position, InputIt first, InputIt last ) {
-				size_type	offset = position - _begin;
+				size_type	offset;
 				size_type	len;
 				iterator	pos;
 
@@ -279,7 +279,7 @@ namespace ft {
 			}
 
 			iterator erase (iterator position) {
-				for (iterator it = position; it != _end; it++)
+				for (iterator it = position; it != (_end - 1); it++)
 					*it = *(it + 1);
 				_size -= 1;
 				_end -= 1;
@@ -287,8 +287,14 @@ namespace ft {
 			}
 
 			iterator erase (iterator first, iterator last) {
-				for (int i = 0; i < last - first; i++)
-					erase(first);
+				size_type	len;
+
+				len = last - first;
+				for (iterator erased = first; erased != last; erased++) {
+					*erased = *(erased + len);
+				}
+				_size -= len;
+				_end -= len;
 				return (first);
 			}
 	};

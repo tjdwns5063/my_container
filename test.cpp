@@ -49,8 +49,30 @@ int main(void) {
         v.push_back(i + 1);
         mv.push_back(i + 1);
     }
-    v.erase(v.end() - 7, v.end());
-    mv.erase(mv.end() - 7, mv.end());
+    // int origin1 = *(v.erase(v.end() - 7));
+    // int my1 = *(mv.erase(mv.end() - 7));
+
+    // std::cout << origin1 << '\n';
+    // std::cout << my1 << '\n';
+    // std::cout << *(v.end() + 1) << '\n';
+    // std::cout << *(mv.end() + 1) << '\n';
+
+    // std::cout << "v_capacity: " << v.capacity() << '\n';
+    // std::cout << "v_size: " << v.size() << '\n';
+    // print_vec(v);
+
+    // std::cout << "mv_capacity: " << mv.capacity() << '\n';
+    // std::cout << "mv_size: " << mv.size() << '\n';
+    // print_vec(mv);
+
+    int origin2 = *(v.erase(v.end() - 1));
+    int my2 = *(mv.erase(mv.end() - 1));
+
+    std::cout << origin2 << '\n';
+    std::cout << my2 << '\n';
+    std::cout << *(v.end() + 1) << '\n';
+    std::cout << *(mv.end() + 1) << '\n';
+
     // v.erase(v.end() - 1);
     // mv.erase(mv.end() - 2);
     // v.insert(v.end(), 14);
