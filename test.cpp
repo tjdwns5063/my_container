@@ -20,74 +20,37 @@ void    print_vec(T& vec) {
     for (typename T::iterator it = vec.begin(); it != vec.end(); it++)
         std::cout << *it << ' ';
     std::cout << '\n';
+    std::cout << "capacitiy : " << vec.capacity() << '\n';
+    std::cout << "size : " << vec.size() << '\n';
 }
 
 int main(void) {
-    std::vector<int> v;
-    ft::vector<int> mv;
+    std::vector<int> v(10, 5);
+    std::vector<int> v2(5, 50);
+    ft::vector<int> mv(10, 5);
+    ft::vector<int> mv2(5, 50);
 
-    std::vector<int> temp;
-    std::vector<int> temp2;
+    // v = v2;
+    // v[0] = 0;
+    // v2 = v;
 
-    temp.push_back(3);
-    temp.push_back(3);
-    temp.push_back(3);
-    temp.push_back(3);
-    temp.push_back(3);
-
-
-
-    // mv.assign<ft::vector<int>::iterator, 0>(temp.begin(), temp.end());
-    // mv.assign(5, 3);
-    // v.assign(5, 3);
-    // mv.assign<std::vector<int>::iterator, 0>(temp.begin(), temp.end());
-    // v.assign(temp.begin(), temp.end());
-    // temp2.assign(3, 14);
-    
-
-    for (int i = 0; i < 13; i++) {
-        v.push_back(i + 1);
-        mv.push_back(i + 1);
-    }
-    // int origin1 = *(v.erase(v.end() - 7));
-    // int my1 = *(mv.erase(mv.end() - 7));
-
-    // std::cout << origin1 << '\n';
-    // std::cout << my1 << '\n';
-    // std::cout << *(v.end() + 1) << '\n';
-    // std::cout << *(mv.end() + 1) << '\n';
-
-    // std::cout << "v_capacity: " << v.capacity() << '\n';
-    // std::cout << "v_size: " << v.size() << '\n';
-    // print_vec(v);
-
-    // std::cout << "mv_capacity: " << mv.capacity() << '\n';
-    // std::cout << "mv_size: " << mv.size() << '\n';
-    // print_vec(mv);
-
-    int origin2 = *(v.erase(v.end() - 1));
-    int my2 = *(mv.erase(mv.end() - 1));
-
-    std::cout << origin2 << '\n';
-    std::cout << my2 << '\n';
-    std::cout << *(v.end() + 1) << '\n';
-    std::cout << *(mv.end() + 1) << '\n';
-
-    // v.erase(v.end() - 1);
-    // mv.erase(mv.end() - 2);
-    // v.insert(v.end(), 14);
-    // v.insert(v.end(), 14);
-    // v.insert(v.end(), 14);
-    // v.insert(v.end() - 3, temp2.begin(), temp2.end());
-    // mv.insert(mv.end(), 14);
-    // mv.insert(mv.end(), 14);
-    // mv.insert(mv.end(), 14);
-    // mv.insert<std::vector<int>::iterator, 0>(mv.end() - 3, temp2.begin(), temp2.end());
-    std::cout << "v_capacity: " << v.capacity() << '\n';
-    std::cout << "v_size: " << v.size() << '\n';
+    v.swap(v2);
     print_vec(v);
+    print_vec(v2);
 
-    std::cout << "mv_capacity: " << mv.capacity() << '\n';
-    std::cout << "mv_size: " << mv.size() << '\n';
+    // mv2 = mv;
+
+    // mv2[0] = 0;
+
+    mv.swap(mv2);
     print_vec(mv);
+    print_vec(mv2);
+
+    v.clear();
+    print_vec(v);
+    std::cout << *(v.end() + 1) << '\n';
+
+    mv.clear();
+    print_vec(mv);
+    std::cout << *(mv.end() + 1) << '\n';
 }

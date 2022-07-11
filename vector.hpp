@@ -53,10 +53,17 @@ namespace ft {
 					t_begin = iterator(_alloc.allocate(_capacity));
 					_copy_value(t_begin, capacity);
 					_begin = t_begin;
-					_end = _begin + _size;
 				} catch (std::bad_alloc& err) {
 					std::cout << "allocate_error\n";
 				}
+			}
+
+			void	_shallow_copy(vector& x, vector& y) {
+				x._alloc = y._alloc;
+				x._capacity = y._capacity;
+				x._size = y._size;
+				x._begin = y._begin;
+				x._end = y._end;
 			}
 
 		public:	
@@ -66,27 +73,34 @@ namespace ft {
 
 			explicit vector (size_type n, const value_type& val = value_type(),
                  const allocator_type& alloc = allocator_type()): _alloc(alloc), _begin(iterator(0)), _end(iterator(0)), _capacity(0), _size(0) {
-					assign(n, 0);
+					assign(n, val);
 				 }
 
-			template <class InputIterator>
-         		vector (InputIterator first, InputIterator last,
-                 const allocator_type& alloc = allocator_type()) {
-					 
-				 }
+			// template <class InputIterator>
+         		// vector (InputIterator first, InputIterator last,
+                //  const allocator_type& alloc = allocator_type()) {
+					//  
+				//  }
 
-			vector (const vector& x);
+			vector (const vector& x) {
+				*this = x;
+			}
 
 			~vector() {
 				_alloc.deallocate(_begin.base(), _capacity);
 				std::cout << "destruct call\n";
 				// system("leaks a.out");
 			}
-			vector& operator=( const vector& other );
-					iterator begin() {
+
+			vector& operator=( const vector& other ) {
+				assign<iterator, 0>(const_cast<iterator&>(other._begin), const_cast<iterator&>(other._end));
+				return (*this);
+			}
+
+			//Iterator		
+			iterator begin() {
 				return (_begin);
 			}
-		//Iterator
 			const_iterator begin() const {
 				return (static_cast<const_iterator>(_begin));
 			}
@@ -96,7 +110,7 @@ namespace ft {
 			}
 
 			const_iterator end() const {
-				reutrn (static_cast<const_iterator>(_end));
+				return (static_cast<const_iterator>(_end));
 			}
 		//Capacity
 			size_type	capacity(void) const {
@@ -210,6 +224,7 @@ namespace ft {
 				_end = _begin + _size;
 				size = 0;
 				for (InputIt it = first; it != last; it++) {
+					std::cout << *it << '\n';
 					_begin[size++] = *it;
 				}
 			}
@@ -296,6 +311,20 @@ namespace ft {
 				_size -= len;
 				_end -= len;
 				return (first);
+			}
+
+			void swap (vector& x) {
+				vector temp;
+
+				_shallow_copy(temp, x);
+				_shallow_copy(x, *this);
+				_shallow_copy(*this, temp);
+				temp._begin = 0;
+			}
+
+			void clear() {
+				_end = _begin;
+				_size = 0;
 			}
 	};
 }
