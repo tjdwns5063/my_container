@@ -7,6 +7,7 @@
 #include "enable_if.hpp"
 #include "is_integral.hpp"
 #include "is_input_iterator.hpp"
+#include "comp_algorithm.hpp"
 
 namespace ft {
 	template<
@@ -329,6 +330,34 @@ namespace ft {
 		// Allocator
 			allocator_type get_allocator() const {
 				return (_alloc);
+			}
+
+		// relation operators
+  			friend bool operator== (const vector<T,Allocator>& lhs, const vector<T,Allocator>& rhs) {
+				return (equal(lhs.begin(), lhs.end(), rhs.begin()));
+			}
+
+  			friend bool operator!= (const vector<T,Allocator>& lhs, const vector<T,Allocator>& rhs) {
+				return (!equal(lhs.begin(), lhs.end(), rhs.begin()));
+			}
+
+			friend bool operator< (const vector<T,Allocator>& lhs, const vector<T,Allocator>& rhs) {
+				return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+			}
+
+			friend bool operator<= (const vector<T,Allocator>& lhs, const vector<T,Allocator>& rhs) {
+				return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()) || 
+					equal(lhs.begin(), lhs.end(), rhs.begin()));
+			}
+
+			friend bool operator> (const vector<T,Allocator>& lhs, const vector<T,Allocator>& rhs) {
+				return (!lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()) &&
+					!equal(lhs.begin(), lhs.end(), rhs.begin()));
+			}
+
+			friend bool operator>= (const vector<T,Allocator>& lhs, const vector<T,Allocator>& rhs) {
+				return (!lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()) || 
+					equal(lhs.begin(), lhs.end(), rhs.begin()));
 			}
 	};
 }
