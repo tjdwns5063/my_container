@@ -4,6 +4,7 @@
 #include "is_integral.hpp"
 #include "vector.hpp"
 #include <vector>
+#include <algorithm>
 
 template <typename T, typename ft::enable_if<ft::is_integral<T>::value, T>::type>
 void    intFunc(T num) {
@@ -25,32 +26,10 @@ void    print_vec(T& vec) {
 }
 
 int main(void) {
-    std::vector<int> v(10, 5);
-    std::vector<int> v2(5, 50);
-    ft::vector<int> mv(10, 5);
-    ft::vector<int> mv2(5, 50);
+    std::vector<int> v(5, 5);
+    std::vector<int> v2(5, 5);
+    ft::vector<int> mv(5, 5);
+    ft::vector<int> mv2(5, 5);
 
-    // v = v2;
-    // v[0] = 0;
-    // v2 = v;
-
-    v.swap(v2);
-    print_vec(v);
-    print_vec(v2);
-
-    // mv2 = mv;
-
-    // mv2[0] = 0;
-
-    mv.swap(mv2);
-    print_vec(mv);
-    print_vec(mv2);
-
-    v.clear();
-    print_vec(v);
-    std::cout << *(v.end() + 1) << '\n';
-
-    mv.clear();
-    print_vec(mv);
-    std::cout << *(mv.end() + 1) << '\n';
+    mv.assign<ft::vector<int>::iterator, 0>(mv2.begin(), mv2.end());
 }

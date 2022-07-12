@@ -214,7 +214,7 @@ namespace ft {
 			}
 
 			template< typename InputIt, 
-			typename ft::enable_if<ft::is_input_iterator<InputIt>::value, int >::type>
+			typename enable_if<is_input_iterator<InputIt>::value, int >::type>
 			void assign( InputIt first, InputIt last ) {
 				size_type	size = 0;
 
@@ -274,7 +274,7 @@ namespace ft {
 			}
 
 			template< typename InputIt, 
-			typename ft::enable_if<ft::is_input_iterator<InputIt>::value, int >::type>
+			typename enable_if<is_input_iterator<InputIt>::value, int >::type>
     		void insert( iterator position, InputIt first, InputIt last ) {
 				size_type	offset;
 				size_type	len;
