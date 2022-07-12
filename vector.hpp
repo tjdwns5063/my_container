@@ -374,6 +374,10 @@ namespace ft {
 				return (!lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()) || 
 					equal(lhs.begin(), lhs.end(), rhs.begin()));
 			}
+
+			friend void swap (vector<T,Allocator>& x, vector<T,Allocator>& y) {
+				x.swap(y);
+			}
 	};
 }
 

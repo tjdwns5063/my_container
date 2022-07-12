@@ -23,7 +23,11 @@ void    print_vec(T& vec) {
 
 int main(void) {
     std::vector<char> v(5, 'a');
-    std::vector<char> v2(v.begin(), v.end());
+    std::vector<char> v2;
+
+    v2.push_back('a');
+    v2.push_back('b');
+    v2.push_back('c');
 
     ft::vector<char> mv(5, 'a');
     ft::vector<char> mv2;
@@ -31,8 +35,15 @@ int main(void) {
     mv2.push_back('a');
     mv2.push_back('b');
     mv2.push_back('c');
-    for (ft::vector<char>::reverse_iterator rit = mv2.rbegin(); rit != mv2.rend(); ++rit) {
-        std::cout << *rit << ' ';
-    }
-    std::cout << '\n';
+    // for (ft::vector<char>::reverse_iterator rit = mv2.rbegin(); rit != mv2.rend(); ++rit) {
+    //     std::cout << *rit << ' ';
+    // }
+    swap(v, v2);
+    swap(mv, mv2);
+
+    print_vec(v);
+    print_vec(v2);
+
+    print_vec(mv);
+    print_vec(mv2);
 }
