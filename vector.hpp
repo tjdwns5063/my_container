@@ -6,7 +6,6 @@
 #include "iterator.hpp"
 #include "enable_if.hpp"
 #include "is_integral.hpp"
-#include "is_input_iterator.hpp"
 #include "comp_algorithm.hpp"
 
 namespace ft {
@@ -77,11 +76,11 @@ namespace ft {
 					assign(n, val);
 				 }
 
-			// template <class InputIterator>
-         		// vector (InputIterator first, InputIterator last,
-                //  const allocator_type& alloc = allocator_type()) {
-					//  
-				//  }
+			template <typename InputIterator>
+				vector (typename enable_if<!is_integral<InputIterator>::value, InputIterator >::type first, InputIterator last, 
+					const allocator_type& alloc = allocator_type()): _alloc(alloc), _begin(iterator(0)), _end(iterator(0)), _capacity(0), _size(0) {
+					assign(first, last);
+				 }
 
 			vector (const vector& x) {
 				*this = x;
@@ -201,7 +200,7 @@ namespace ft {
 				return (*(_end - 1));
 			}
 		// Modifiers
-			void assign( size_type count, const T& value ) {
+			void assign( size_type count, const value_type& value ) {
 				_allocate(count);
 				for (int i = 0; i < _capacity; i++) {
 					if (i < count)
@@ -213,9 +212,8 @@ namespace ft {
 				_end = _begin + _size;
 			}
 
-			template< typename InputIt, 
-			typename enable_if<is_input_iterator<InputIt>::value, int >::type>
-			void assign( InputIt first, InputIt last ) {
+			template< typename InputIt>
+			void assign( typename enable_if<!is_integral<InputIt>::value, InputIt >::type first, InputIt last ) {
 				size_type	size = 0;
 
 				for (InputIt it = first; it != last; it++)
@@ -225,7 +223,6 @@ namespace ft {
 				_end = _begin + _size;
 				size = 0;
 				for (InputIt it = first; it != last; it++) {
-					std::cout << *it << '\n';
 					_begin[size++] = *it;
 				}
 			}
@@ -273,9 +270,8 @@ namespace ft {
 				_end += n;
 			}
 
-			template< typename InputIt, 
-			typename enable_if<is_input_iterator<InputIt>::value, int >::type>
-    		void insert( iterator position, InputIt first, InputIt last ) {
+			template< typename InputIt>
+    		void insert( iterator position, typename enable_if<is_integral<InputIt>::value, InputIt >::type first, InputIt last ) {
 				size_type	offset;
 				size_type	len;
 				iterator	pos;

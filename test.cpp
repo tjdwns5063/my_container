@@ -1,19 +1,15 @@
 #include <iostream>
 #include "enable_if.hpp"
-#include "is_input_iterator.hpp"
 #include "is_integral.hpp"
 #include "vector.hpp"
 #include <vector>
 #include <algorithm>
+#include <map>
+#include <utility>
 
 template <typename T, typename ft::enable_if<ft::is_integral<T>::value, T>::type>
 void    intFunc(T num) {
     std::cout << num << '\n';
-}
-
-template <typename It, typename ft::enable_if<ft::is_input_iterator<It>::value, int>::type>
-void    iterFunc(It it, It it2) {
-    std::cout << "iterFunc\n";
 }
 
 template <typename T>
@@ -26,10 +22,13 @@ void    print_vec(T& vec) {
 }
 
 int main(void) {
-    std::vector<int> v(5, 5);
-    std::vector<int> v2(5, 5);
-    ft::vector<int> mv(5, 5);
-    ft::vector<int> mv2(5, 5);
+    std::vector<char> v(5, 'a');
+    std::vector<char> v2(v.begin(), v.end());
 
-    mv.assign<ft::vector<int>::iterator, 0>(mv2.begin(), mv2.end());
+    ft::vector<char> mv(5, 'a');
+    ft::vector<char> mv2(mv.begin(), mv.end());
+
+    for (ft::vector<char>::iterator it = mv2.begin(); it != mv2.end(); it++)
+        std::cout << *it << ' ';
+    std::cout << '\n';
 }
