@@ -14,16 +14,18 @@ namespace ft {
 		class Allocator = std::allocator<T>
 	> class vector {
 		public:
-			typedef T																	value_type;
-			typedef Allocator															allocator_type;
-			typedef	size_t																size_type;
-			typedef std::ptrdiff_t														difference_type;
-			typedef value_type&															reference;
-			typedef const value_type&													const_reference;
-			typedef value_type*															pointer;
-			typedef	const value_type*													const_pointer;
-			typedef	typename ft::vector_iterator<ft::iterator_traits<pointer> >			iterator;
-			typedef typename ft::vector_iterator<ft::iterator_traits<const_pointer> >	const_iterator;	
+			typedef T															value_type;
+			typedef Allocator													allocator_type;
+			typedef	size_t														size_type;
+			typedef std::ptrdiff_t												difference_type;
+			typedef value_type&													reference;
+			typedef const value_type&											const_reference;
+			typedef value_type*													pointer;
+			typedef	const value_type*											const_pointer;
+			typedef	ft::vector_iterator<ft::iterator_traits<pointer> >			iterator;
+			typedef ft::vector_iterator<ft::iterator_traits<const_pointer> >	const_iterator;	
+			typedef ft::reverse_iterator<iterator>								reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>						const_reverse_iterator;
 		private:
 			iterator		_begin;
 			iterator		_end;
@@ -107,6 +109,22 @@ namespace ft {
 
 			iterator end() {
 				return (_end);
+			}
+
+			reverse_iterator rbegin() {
+				return (reverse_iterator(_end));
+			}
+
+			const_reverse_iterator	rbegin() const {
+				return (const_reverse_iterator(_end));
+			}
+
+			reverse_iterator rend() {
+				return (reverse_iterator(_begin));
+			}
+
+			const_reverse_iterator rend() const {
+				return (const_reverse_iterator(_begin));
 			}
 
 			const_iterator end() const {
@@ -230,6 +248,7 @@ namespace ft {
 			void push_back( const value_type& val ) {
 				if (_size >= _capacity)
 					_allocate(_capacity + 1);
+				_end = _begin + _size;
 				*(_end) = val;
 				_end += 1;
 				_size += 1;

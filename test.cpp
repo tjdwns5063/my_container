@@ -26,9 +26,13 @@ int main(void) {
     std::vector<char> v2(v.begin(), v.end());
 
     ft::vector<char> mv(5, 'a');
-    ft::vector<char> mv2(mv.begin(), mv.end());
+    ft::vector<char> mv2;
 
-    for (ft::vector<char>::iterator it = mv2.begin(); it != mv2.end(); it++)
-        std::cout << *it << ' ';
+    mv2.push_back('a');
+    mv2.push_back('b');
+    mv2.push_back('c');
+    for (ft::vector<char>::reverse_iterator rit = mv2.rbegin(); rit != mv2.rend(); ++rit) {
+        std::cout << *rit << ' ';
+    }
     std::cout << '\n';
 }

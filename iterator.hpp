@@ -48,6 +48,130 @@ namespace ft {
 		typedef Category  iterator_category;
 	};
 
+	template <class Iterator>
+	class reverse_iterator
+		: public iterator<typename iterator_traits<Iterator>::iterator_category,
+						typename iterator_traits<Iterator>::value_type,
+						typename iterator_traits<Iterator>::difference_type,
+						typename iterator_traits<Iterator>::pointer,
+						typename iterator_traits<Iterator>::reference>
+	{
+	protected:
+		Iterator current;
+	public:
+		typedef Iterator                                            iterator_type;
+		typedef typename iterator_traits<Iterator>::difference_type difference_type;
+		typedef typename iterator_traits<Iterator>::reference       reference;
+		typedef typename iterator_traits<Iterator>::pointer         pointer;
+
+		reverse_iterator(): current() {}
+		explicit reverse_iterator(Iterator x): current(x) {}
+		template <class U> 
+		reverse_iterator(const reverse_iterator<U>& u): current(u.base()) {}
+
+		template <class U>
+		const reverse_iterator& operator=(const reverse_iterator<U>& u) {
+			current = u.base(); return (*this);
+		}
+		
+		const Iterator base() const { 
+			return (current); 
+		}
+
+		const reference operator*() const {
+			Iterator __tmp = current;
+			return *(--__tmp);
+		}
+
+		const pointer   operator->() const {
+			return (std::addressof(operator*()));
+		}
+
+		const reverse_iterator& operator++() {
+			--current;
+			return (*this);
+		}
+
+		const reverse_iterator  operator++(int) {
+			reverse_iterator	temp(*this);
+			
+			--current;
+			return (temp);
+		}
+
+		const reverse_iterator& operator--() {
+			++current;
+			return (*this);
+		}
+
+		const reverse_iterator  operator--(int) {
+			reverse_iterator	temp(*this);
+
+			++current;
+			return (temp);
+		}
+
+		const reverse_iterator  operator+ (difference_type n) const {
+			reverse_iterator	temp(current - n);
+			return (temp);
+		}
+
+		const reverse_iterator& operator+=(difference_type n) {
+			current -= n;
+			return (*this);
+		}
+
+		const reverse_iterator  operator- (difference_type n) const {
+			reverse_iterator	temp(current + n);
+			return (temp);
+		}
+
+		const reverse_iterator& operator-=(difference_type n) {
+			current += n;
+			return (*this);
+		}
+
+		const reference         operator[](difference_type n) const {
+			return (*(*this + n));
+		}
+
+		template <class _Iterator>
+		friend bool operator== (const reverse_iterator<_Iterator>& lhs,
+			const reverse_iterator<_Iterator>& rhs) {
+				return (lhs.base() == rhs.base());
+			}
+
+		template <class _Iterator>
+		friend bool operator!= (const reverse_iterator<_Iterator>& lhs,
+			const reverse_iterator<_Iterator>& rhs) {
+				return (lhs.base() != rhs.base());
+			}
+
+		template <class _Iterator>
+		friend bool operator< (const reverse_iterator<_Iterator>& lhs,
+			const reverse_iterator<_Iterator>& rhs) {
+				return (lhs.base() < rhs.base());
+			}
+
+		template <class _Iterator>
+		friend bool operator<= (const reverse_iterator<_Iterator>& lhs,
+			const reverse_iterator<_Iterator>& rhs) {
+				return (lhs.base() <= rhs.base());
+			}
+
+		template <class _Iterator>
+		friend bool operator> (const reverse_iterator<_Iterator>& lhs,
+			const reverse_iterator<_Iterator>& rhs) {
+				return (lhs.base() > rhs.base());
+			}
+
+		template <class _Iterator>
+		friend bool operator>= (const reverse_iterator<_Iterator>& lhs,
+			const reverse_iterator<_Iterator>& rhs) {
+				return (lhs.base() >= rhs.base());
+			}
+	};
+
 	template<typename It>
 	class vector_iterator {
 	public:
@@ -60,19 +184,15 @@ namespace ft {
 	private:
 		pointer	_p;
 	public:
-		vector_iterator() {}
+		vector_iterator(): _p() {}
 		vector_iterator(pointer p): _p(p) {}
 		~vector_iterator() {}
-		vector_iterator(const vector_iterator& ref) {
-			*this = ref;
-		}
 
-		vector_iterator&	operator=(const vector_iterator& ref) {
-			if (ref != *this) {
-				_p = ref.base();
-			}
-			return (*this);
-		}
+		template <class _Up>
+        vector_iterator(const vector_iterator<_Up>& p) : _p(p.base()) {}
+    	template <class _Up>
+        vector_iterator& operator=(const vector_iterator<_Up>& p)
+            { _p = p.base(); return *this; }
 
 		const pointer	base() const {
 			return (_p);
