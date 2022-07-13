@@ -255,44 +255,44 @@ namespace ft {
 		}
 
 		template <typename It1>
-		const friend vector_iterator<It1>	operator+(difference_type size, const vector_iterator<It1>& vit) {
+		friend const vector_iterator<It1>	operator+(difference_type size, const vector_iterator<It1>& vit) {
 			vector_iterator<It1> temp(vit);
 			temp += size;
 			return (temp);
 		}
 
 		template <typename It1, typename It2>
-		const friend difference_type	operator-(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend const difference_type	operator-(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return (vit1._p - vit2._p);
 		}
 
 		template <typename It1, typename It2>
-		const friend bool	operator==(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend bool	operator==(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return (vit1._p == vit2._p);	
 		}
 
 		template <typename It1, typename It2>
-		const friend bool	operator!=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend bool	operator!=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return (!(vit1 == vit2));	
 		}
 
 		template <typename It1, typename It2>
-		const friend bool	operator>(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend bool	operator>(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return (vit1 - vit2 > 0);	
 		}
 
 		template <typename It1, typename It2>
-		const friend bool	operator<(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend bool	operator<(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return (vit1 - vit2 < 0);	
 		}
 
 		template <typename It1, typename It2>
-		const friend bool	operator>=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend bool	operator>=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return !(vit1 < vit2);
 		}
 
 		template <typename It1, typename It2>
-		const friend bool	operator<=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend bool	operator<=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return !(vit1 > vit2);
 		}
 	};

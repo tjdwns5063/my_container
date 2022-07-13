@@ -71,10 +71,10 @@ namespace ft {
 		public:	
 		//Constructor, Destructor, Assign operator
 			explicit vector (const allocator_type& alloc = allocator_type())
-				: _alloc(alloc), _begin(iterator(0)), _end(iterator(0)), _capacity(0), _size(0) {}
+				: _begin(iterator(0)), _end(iterator(0)), _alloc(alloc), _capacity(0), _size(0) {}
 
 			explicit vector (size_type n, const value_type& val = value_type(),
-                 const allocator_type& alloc = allocator_type()): _alloc(alloc), _begin(iterator(0)), _end(iterator(0)), _capacity(0), _size(0) {
+                 const allocator_type& alloc = allocator_type()): _begin(iterator(0)), _end(iterator(0)), _alloc(alloc), _capacity(0), _size(0) {
 					assign(n, val);
 				 }
 
@@ -220,7 +220,7 @@ namespace ft {
 		// Modifiers
 			void assign( size_type count, const value_type& value ) {
 				_allocate(count);
-				for (int i = 0; i < _capacity; i++) {
+				for (size_type i = 0; i < _capacity; i++) {
 					if (i < count)
 						_begin[i] = value;
 					else
