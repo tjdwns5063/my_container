@@ -3,3 +3,5 @@ vector
 temp.cpp
 *.out
 .vscode
+test
+*.o
