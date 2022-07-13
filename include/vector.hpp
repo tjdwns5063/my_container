@@ -47,7 +47,6 @@ namespace ft {
 			void	_allocate(size_type n) {
 				iterator	t_begin;
 				size_type	capacity = _capacity;
-
 				if (_capacity >= n)
 					return ;
 				_capacity = (_capacity == 0) ? n : _capacity * 2;
@@ -95,7 +94,9 @@ namespace ft {
 			}
 
 			vector& operator=( const vector& other ) {
-				assign<iterator, 0>(const_cast<iterator&>(other._begin), const_cast<iterator&>(other._end));
+				_capacity = other._capacity;
+				_size = other._size;
+				assign(const_cast<iterator&>(other._begin), const_cast<iterator&>(other._end));
 				return (*this);
 			}
 

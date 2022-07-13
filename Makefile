@@ -24,4 +24,4 @@ fclean:
 re:
 	rm -rf $(OBJS)
 	rm -rf $(NAME)
-	make -C all
+	make -C . all
