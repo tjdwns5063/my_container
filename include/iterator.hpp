@@ -2,6 +2,8 @@
 # define ITERATOR_HPP
 
 #include <ios>
+#include "pair.hpp"
+#include "node.hpp"
 
 namespace ft {
 	struct input_iterator_tag  {};
@@ -295,6 +297,86 @@ namespace ft {
 		friend bool	operator<=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return !(vit1 > vit2);
 		}
+	};
+
+	template <class _Tp>
+	class map_iterator {
+	public:
+		typedef Node<_Tp>					node_type;
+		typedef typename node_type::pointer	node_pointer;
+		typedef bidirectional_iterator_tag	iterator_category;
+		typedef _Tp							value_type;
+		typedef ptrdiff_t					difference_type;
+		typedef value_type&					reference;
+		typedef value_type*					pointer;
+	private:
+		node_pointer _p;
+
+		node_pointer	tree_min(node_pointer _ptr) {
+			while (_ptr->_left != nullptr)
+        		_ptr = _ptr->_left;
+    		return _ptr;
+		}
+
+		bool is_left_child(node_pointer _ptr) {
+    		return _ptr == _ptr->_parent->_left;
+		}
+
+	public:
+		map_iterator() {}
+		map_iteraotr(node_pointer p): _p(p) {}
+		map_iterator(const map_iterator& ref): _p(ref._p) {}
+		map_iterator&	operator=(const map_iterator& ref) {
+			_p = ref._p;
+			return (*this);
+		}
+
+		void	setPtr(node_pointer _ptr) {
+			_p = _ptr;
+		}
+
+		reference	operator*() const {
+			return *(_p->_val);
+		}
+
+		pointer		operator->() const {
+			return (_p->_val);
+		}
+
+		map_iterator&	operator++() {
+			if (_p->_right != NULL) {
+				return tree_min(ptr);
+			}
+			while (!is_left_child(ptr)) {
+				_p = _p->_parent;
+			}
+			_p = _p->_parent;
+			return (*this);
+		}
+
+		map_iterator	operator++(int) {
+			map_iterator	temp(*this);
+			++(*this);
+			return (temp);
+		}
+
+		map_iterator&	operator--() {
+			ptr = ptr->_left;
+			return (*this);
+		}
+
+		map_iterator	operator--(int) {
+			map_iterator	temp(*this);
+			--(*this);
+			return (temp);
+		}
+
+        friend bool operator==(const map_iterator& rhs, const map_iterator& lhs) {
+			return rhs.ptr == lhs.ptr;
+		}
+    	
+        friend bool operator!=(const map_iterator& rhs, const map_iterator& lhs)
+        {return !(rhs == lhs);}
 	};
 }
 
