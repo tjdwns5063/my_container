@@ -50,10 +50,26 @@ private:
 	node_pointer	append_node(node_pointer root, node_pointer ptr) {
 		if (!root)
 			return ptr;
-		if (root->_val.first > ptr->_val.first)
+		if (root->_val.first > ptr->_val.first) {
 			root->_left = append_node(root->_left, ptr);
-		if (root->_val.first < ptr->_val.first)
+			root->_left->_parent = root;
+		}
+		else if (root->_val.first < ptr->_val.first) {
 			root->_right = append_node(root->_right, ptr);
+			root->_right->_parent = root;
+		}
+		else
+			return NULL;
+		return root;
+	}
+
+	node_pointer	search_node(const key_type& k, node_pointer root) {
+		if (!root || k == root->_val.first)
+			return root;
+		if (search_node(k, root->_left))
+			return root;
+		if (search_node(k, root->_right))
+			return root;
 		return root;
 	}
 
@@ -62,7 +78,29 @@ public:
 
 	explicit map (const key_compare& comp = key_compare(),
               const allocator_type& alloc = allocator_type())
-			  : _alloc(alloc), _key_comp(comp), _size(0), _root(NULL) {}
+			  : _alloc(alloc), _key_comp(comp), _size(0), _root(NULL) {
+				_root = append_node(_root, make_node(5, 1));
+				_root = append_node(_root, make_node(3, 2));
+				_root = append_node(_root, make_node(6, 3));
+				_root = append_node(_root, make_node(1, 4));
+				_root = append_node(_root, make_node(4, 5));
+
+				// std::cout << iterator(_root)->first << '\n';
+				// std::cout << begin()->first << '\n';
+				iterator it = iterator(_root->_right);
+				--it;
+				--it;
+				--it;
+				--it;
+				--it;
+
+				std::cout << it->first << '\n';
+				// for (iterator it = begin(); it != end(); ++it) {
+				// 	std::cout << (it == end()) << '\n';
+				// 	std::cout << it->first << '\n';
+				// }
+				std::cout << "end\n";
+			  }
 	
 	// template <class InputIterator>
 	// map (InputIterator first, InputIterator last,
@@ -87,9 +125,28 @@ public:
 		return (*this);
 	}
 
-	iterator begin();
+	iterator begin() {
+		node_pointer root = _root;
+		while (root->_left) {
+			root = root->_left;
+		}
+		return iterator(root);
+	}
 
 	// const_iterator begin() const;
+
+	iterator end() {
+		node_pointer root = _root;
+		while (root->_right) {
+			root = root->_right;
+		}
+		root->_right = _node_alloc.allocate(1);
+		// node_pointer end = _node_alloc.allocate(1);
+		// _node_alloc.construct(end, Node<value_type>(root->_val));
+		return iterator(root->_right);
+	}
+
+	// const_iterator	end() const;
 
 	// reverse_iterator rbegin();
 
@@ -113,7 +170,9 @@ public:
 
 	mapped_type& operator[] (const key_type& k);
 
-	pair<iterator,bool> insert (const value_type& val);
+	pair<iterator,bool> insert (const value_type& val) {
+
+	}
 
 	iterator insert (iterator position, const value_type& val);
 
@@ -134,7 +193,10 @@ public:
 
 	// value_compare value_comp() const;
 
-	iterator find (const key_type& k);
+	iterator find (const key_type& k) {
+		iterator ret = iterator(search_node(k, _root));
+		return ret;
+	}
 
 	// const_iterator find (const key_type& k) const;
 
