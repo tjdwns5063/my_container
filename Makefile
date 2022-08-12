@@ -1,5 +1,5 @@
 CC = c++
-CXXFLAGS = -Wall -Wextra -Werror
+CXXFLAGS = -Wall -Wextra #-Werror
 
 NAME = test
 

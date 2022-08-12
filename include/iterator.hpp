@@ -319,6 +319,10 @@ namespace ft {
 		}
 
 		bool is_left_child(node_pointer _ptr) {
+			// if (!(_ptr->_parent->_left))
+				// return true;
+			// if (!(_ptr->_parent->_right))
+				// return false;
     		return _ptr == _ptr->_parent->_left;
 		}
 
@@ -355,8 +359,11 @@ namespace ft {
 				return (*this);
 			}
 			while (!is_left_child(_p)) {
+				// std::cout << "_p first: " << _p->_val.first << '\n';
 				_p = _p->_parent;
 			}
+			// std::cout << "cici\n";
+			// std::cout << "last first: " << _p->_val.first << '\n';
 			_p = _p->_parent;
 			return (*this);
 		}

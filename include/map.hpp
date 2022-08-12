@@ -23,9 +23,9 @@ public:
     typedef typename allocator_type::size_type       size_type;
     typedef typename allocator_type::difference_type difference_type;
 
-    typedef map_iterator<value_type>                 iterator;
+    typedef map_iterator<value_type>					iterator;
     // typedef implementation-defined                   const_iterator;
-    // typedef std::reverse_iterator<iterator>          reverse_iterator;
+    typedef reverse_iterator<iterator>					reverse_iterator;
     // typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;
 
 
@@ -39,6 +39,7 @@ private:
 	allocator_type								_alloc;
 	key_compare									_key_comp;
 	size_type									_size;
+	node_pointer								_super_node;
 
 	node_pointer	make_node(key_type k, mapped_type v) {
 		node_pointer ret = _node_alloc.allocate(1);
@@ -48,8 +49,9 @@ private:
 	}
 
 	node_pointer	append_node(node_pointer root, node_pointer ptr) {
-		if (!root)
+		if (!root) {
 			return ptr;
+		}
 		if (root->_val.first > ptr->_val.first) {
 			root->_left = append_node(root->_left, ptr);
 			root->_left->_parent = root;
@@ -78,27 +80,28 @@ public:
 
 	explicit map (const key_compare& comp = key_compare(),
               const allocator_type& alloc = allocator_type())
-			  : _alloc(alloc), _key_comp(comp), _size(0), _root(NULL) {
+			  : _alloc(alloc), _key_comp(comp), _size(0), _super_node(make_node(0, -1)), _root(NULL) {
 				_root = append_node(_root, make_node(5, 1));
 				_root = append_node(_root, make_node(3, 2));
 				_root = append_node(_root, make_node(6, 3));
 				_root = append_node(_root, make_node(1, 4));
 				_root = append_node(_root, make_node(4, 5));
-
+				// _super_node->_left = _root;
+				// _super_node->_right = _root;
+				_super_node->_left = _root;
+				_root->_parent = _super_node;
 				// std::cout << iterator(_root)->first << '\n';
 				// std::cout << begin()->first << '\n';
 				iterator it = iterator(_root->_right);
-				--it;
-				--it;
-				--it;
-				--it;
-				--it;
-
-				std::cout << it->first << '\n';
+				// ++it;
+				// std::cout << _root->_parent->_val.first << '\n';
+				// std::cout << it->first << '\n';
 				// for (iterator it = begin(); it != end(); ++it) {
-				// 	std::cout << (it == end()) << '\n';
 				// 	std::cout << it->first << '\n';
 				// }
+				for (reverse_iterator it = reverse_iterator(end()); it != reverse_iterator(begin()); --it) {
+					std::cout << it->first << '\n';
+				}
 				std::cout << "end\n";
 			  }
 	
@@ -136,14 +139,7 @@ public:
 	// const_iterator begin() const;
 
 	iterator end() {
-		node_pointer root = _root;
-		while (root->_right) {
-			root = root->_right;
-		}
-		root->_right = _node_alloc.allocate(1);
-		// node_pointer end = _node_alloc.allocate(1);
-		// _node_alloc.construct(end, Node<value_type>(root->_val));
-		return iterator(root->_right);
+		return (iterator(_root->_parent));
 	}
 
 	// const_iterator	end() const;
