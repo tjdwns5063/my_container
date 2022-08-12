@@ -313,7 +313,7 @@ namespace ft {
 		node_pointer _p;
 
 		node_pointer	tree_min(node_pointer _ptr) {
-			while (_ptr->_left != nullptr)
+			while (_ptr->_left != NULL)
         		_ptr = _ptr->_left;
     		return _ptr;
 		}
@@ -322,9 +322,15 @@ namespace ft {
     		return _ptr == _ptr->_parent->_left;
 		}
 
+		node_pointer	tree_max(node_pointer _ptr) {
+			while (_ptr->_right != NULL)
+				_ptr = _ptr->_right;
+			return _ptr;
+		}
+
 	public:
 		map_iterator() {}
-		map_iteraotr(node_pointer p): _p(p) {}
+		map_iterator(node_pointer p): _p(p) {}
 		map_iterator(const map_iterator& ref): _p(ref._p) {}
 		map_iterator&	operator=(const map_iterator& ref) {
 			_p = ref._p;
@@ -336,18 +342,19 @@ namespace ft {
 		}
 
 		reference	operator*() const {
-			return *(_p->_val);
+			return (_p->_val);
 		}
 
 		pointer		operator->() const {
-			return (_p->_val);
+			return &(_p->_val);
 		}
 
 		map_iterator&	operator++() {
 			if (_p->_right != NULL) {
-				return tree_min(ptr);
+				_p = tree_min(_p->_right);
+				return (*this);
 			}
-			while (!is_left_child(ptr)) {
+			while (!is_left_child(_p)) {
 				_p = _p->_parent;
 			}
 			_p = _p->_parent;
@@ -361,7 +368,14 @@ namespace ft {
 		}
 
 		map_iterator&	operator--() {
-			ptr = ptr->_left;
+			if (_p->_left != NULL) {
+				_p = tree_max(_p->_left);
+				return (*this);
+			}
+			while (is_left_child(_p)) {
+				_p = _p->_parent;
+			}
+			_p = _p->_parent;
 			return (*this);
 		}
 
@@ -372,7 +386,7 @@ namespace ft {
 		}
 
         friend bool operator==(const map_iterator& rhs, const map_iterator& lhs) {
-			return rhs.ptr == lhs.ptr;
+			return rhs._p == lhs._p;
 		}
     	
         friend bool operator!=(const map_iterator& rhs, const map_iterator& lhs)
