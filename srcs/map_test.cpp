@@ -19,18 +19,20 @@ int main()
 	std::cout << "this is map\n";
 
 	std::map<int, int>	m;
-	// ft::map<int, int> mm;
-	m.insert(std::make_pair(5, 1));
-	m.insert(std::make_pair(3, 2));
-	m.insert(std::make_pair(6, 3));
-	m.insert(std::make_pair(1, 4));
-	m.insert(std::make_pair(4, 5));
+	ft::map<int, int> mm;
 
-	// for (s_it it = --m.end(); it != --m.begin(); --it) {
-		// std::cout << it->first << '\n';
-	// }
+	auto pair = mm.insert(ft::make_pair<int, int>(1, 2));
+	auto pair2 = mm.insert(ft::make_pair<int, int>(1, 3));
+	auto pair3 = mm.insert(ft::make_pair<int, int>(0, 1));
+	auto pair4 = mm.insert(ft::make_pair<int, int>(2, 3));
 
-	for (s_rit rit = m.rbegin(); rit != m.rend(); --rit) {
-		std::cout << rit->first << '\n';
-	}
+
+	m_it it = pair.first;
+
+	std::cout << it->first << " " << it->second << '\n';
+	std::cout << pair2.second << '\n';
+	--it;
+	std::cout << it->first << " " << it->second << '\n';
+	std::cout << mm.size() << '\n';	
+	std::cout << mm[0] << '\n';
 }

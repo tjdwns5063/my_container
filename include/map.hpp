@@ -1,6 +1,8 @@
 #ifndef MAP_HPP
 # define MAP_HPP
 
+#include <__tree>
+#include <algorithm>
 #include "iterator.hpp"
 
 namespace ft {
@@ -24,9 +26,9 @@ public:
     typedef typename allocator_type::difference_type difference_type;
 
     typedef map_iterator<value_type>					iterator;
-    // typedef implementation-defined                   const_iterator;
+    typedef const map_iterator<value_type>              const_iterator;
     typedef reverse_iterator<iterator>					reverse_iterator;
-    // typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;
+    typedef std::reverse_iterator<const_iterator>    	const_reverse_iterator;
 
 
 private:
@@ -41,10 +43,10 @@ private:
 	size_type									_size;
 	node_pointer								_super_node;
 
-	node_pointer	make_node(key_type k, mapped_type v) {
+	node_pointer	make_node(value_type val) {
 		node_pointer ret = _node_alloc.allocate(1);
-		value_type	container = make_pair<int, int>(k, v);
-		_node_alloc.construct(ret, Node<value_type>(container));
+		// value_type	container = make_pair<int, int>(k, v);
+		_node_alloc.construct(ret, Node<value_type>(val));
 		return (ret);
 	}
 
@@ -55,23 +57,27 @@ private:
 		if (root->_val.first > ptr->_val.first) {
 			root->_left = append_node(root->_left, ptr);
 			root->_left->_parent = root;
+			return root->_left;
 		}
 		else if (root->_val.first < ptr->_val.first) {
 			root->_right = append_node(root->_right, ptr);
 			root->_right->_parent = root;
+			return root->_right;
 		}
-		else
-			return NULL;
-		return root;
+		return NULL;
 	}
 
 	node_pointer	search_node(const key_type& k, node_pointer root) {
 		if (!root || k == root->_val.first)
 			return root;
-		if (search_node(k, root->_left))
-			return root;
-		if (search_node(k, root->_right))
-			return root;
+		node_pointer ret = search_node(k, root->_left);
+		if (ret && ret->_val.first == k) {
+			return ret;
+		}
+		ret = search_node(k, root->_right);
+		if (ret && ret->_val.first == k) {
+			return ret;
+		}
 		return root;
 	}
 
@@ -80,30 +86,7 @@ public:
 
 	explicit map (const key_compare& comp = key_compare(),
               const allocator_type& alloc = allocator_type())
-			  : _alloc(alloc), _key_comp(comp), _size(0), _super_node(make_node(0, -1)), _root(NULL) {
-				_root = append_node(_root, make_node(5, 1));
-				_root = append_node(_root, make_node(3, 2));
-				_root = append_node(_root, make_node(6, 3));
-				_root = append_node(_root, make_node(1, 4));
-				_root = append_node(_root, make_node(4, 5));
-				// _super_node->_left = _root;
-				// _super_node->_right = _root;
-				_super_node->_left = _root;
-				_root->_parent = _super_node;
-				// std::cout << iterator(_root)->first << '\n';
-				// std::cout << begin()->first << '\n';
-				iterator it = iterator(_root->_right);
-				// ++it;
-				// std::cout << _root->_parent->_val.first << '\n';
-				// std::cout << it->first << '\n';
-				// for (iterator it = begin(); it != end(); ++it) {
-				// 	std::cout << it->first << '\n';
-				// }
-				for (reverse_iterator it = reverse_iterator(end()); it != reverse_iterator(begin()); --it) {
-					std::cout << it->first << '\n';
-				}
-				std::cout << "end\n";
-			  }
+			  : _alloc(alloc), _key_comp(comp), _size(0), _super_node(NULL), _root(NULL) {}
 	
 	// template <class InputIterator>
 	// map (InputIterator first, InputIterator last,
@@ -130,27 +113,40 @@ public:
 
 	iterator begin() {
 		node_pointer root = _root;
+
 		while (root->_left) {
 			root = root->_left;
 		}
 		return iterator(root);
 	}
 
-	// const_iterator begin() const;
+	const_iterator begin() const {
+		return static_cast<const_iterator>(begin());
+	}
 
 	iterator end() {
 		return (iterator(_root->_parent));
 	}
 
-	// const_iterator	end() const;
+	const_iterator	end() const {
+		return static_cast<const_iterator>(end());
+	}
 
-	// reverse_iterator rbegin();
+	reverse_iterator rbegin() {
+		return reverse_iterator(end());
+	}
 
-	// const_reverse_iterator rbegin() const;
+	const_reverse_iterator rbegin() const {
+		return static_cast<const_reverse_iterator>(rbegin());
+	}
 
-	// reverse_iterator rend();
+	reverse_iterator rend() {
+		return reverse_iterator(begin());
+	}
 
-	// const_reverse_iterator rend() const;
+	const_reverse_iterator rend() const {
+		return static_cast<const_reverse_iterator>(rend());
+	}
 
 	bool empty() const {
 		if (_size != 0)
@@ -162,12 +158,26 @@ public:
 		return _size;
 	}
 
-	size_type max_size() const;
+	size_type max_size() const {
+		return std::min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());
+	}
 
-	mapped_type& operator[] (const key_type& k);
+	mapped_type& operator[] (const key_type& k) {
+		return search_node(k, _root)->_val.second;
+	}
 
 	pair<iterator,bool> insert (const value_type& val) {
+		node_pointer	root = append_node(_root, make_node(val));
 
+		if (_size == 0) {
+			_root = root;
+		}
+		if (!root) {
+			return make_pair<iterator, bool>(iterator(root), false);
+		} else {
+			++_size;
+			return make_pair<iterator, bool>(iterator(root), true);
+		}
 	}
 
 	iterator insert (iterator position, const value_type& val);
@@ -210,7 +220,9 @@ public:
 
 	pair<iterator,iterator>             equal_range (const key_type& k);
 
-	allocator_type get_allocator() const;
+	allocator_type get_allocator() const {
+		return _alloc;
+	}
 };
 }
 
