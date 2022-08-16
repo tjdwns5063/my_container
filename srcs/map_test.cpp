@@ -24,10 +24,17 @@ int main()
 
 	std::map<int, int>	m;
 	ft::map<int, int> mm;
+	ft::map<int, int>	cp_mm;
 
 	mm.insert(ft::make_pair<int, int>(0,1));
 	mm.insert(ft::make_pair<int, int>(1,2));
 	mm.insert(ft::make_pair<int, int>(2,3));
+
+	cp_mm.insert(mm.begin(), mm.end());
+
+	for (m_it it = cp_mm.begin(); it != cp_mm.end(); ++it) {
+		std::cout << it->first << " " << it->second << '\n';
+	}
 
 	m.insert(std::make_pair(0,1));
 	m.insert(std::make_pair(1,2));

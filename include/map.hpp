@@ -215,11 +215,15 @@ public:
 	}
 
 	iterator insert (iterator position, const value_type& val) {
-		return position;
+		
 	}
 
 	template <class InputIterator>
-	void insert (InputIterator first, InputIterator last);
+	void insert (InputIterator first, InputIterator last) {
+		for (iterator it = first; it != last; ++it) {
+			insert(pair<key_type, mapped_type>(*it));
+		}
+	}
 
     void erase (iterator position);
 
@@ -298,7 +302,12 @@ public:
 		return _alloc;
 	}
 };
+
+template <class Key, class T, class Compare, class Allocator>
+void swap(map<Key, T, Compare, Allocator>& x, map<Key, T, Compare, Allocator>& y) {
+    x.swap(y);
 }
 
+}
 
 #endif
