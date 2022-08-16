@@ -1,7 +1,6 @@
 #ifndef MAP_HPP
 # define MAP_HPP
 
-#include <__tree>
 #include <algorithm>
 #include "iterator.hpp"
 
@@ -13,22 +12,35 @@ template < class Key,                                     // map::key_type
            class Allocator = std::allocator<pair<const Key,T> > >    // map::allocator_type 
 class map {
 public:
-    typedef Key                                      key_type;
-    typedef T                                        mapped_type;
-    typedef pair<const key_type, mapped_type>        value_type;
-    typedef Compare                                  key_compare;
-    typedef Allocator                                allocator_type;
-    typedef typename allocator_type::reference       reference;
-    typedef typename allocator_type::const_reference const_reference;
-    typedef typename allocator_type::pointer         pointer;
-    typedef typename allocator_type::const_pointer   const_pointer;
-    typedef typename allocator_type::size_type       size_type;
-    typedef typename allocator_type::difference_type difference_type;
+    typedef Key                                      	key_type;
+    typedef T                                        	mapped_type;
+    typedef pair<const key_type, mapped_type>        	value_type;
+    typedef Compare                                  	key_compare;
+
+    typedef Allocator                                	allocator_type;
+    typedef typename allocator_type::reference       	reference;
+    typedef typename allocator_type::const_reference 	const_reference;
+    typedef typename allocator_type::pointer         	pointer;
+    typedef typename allocator_type::const_pointer   	const_pointer;
+    typedef typename allocator_type::size_type       	size_type;
+    typedef typename allocator_type::difference_type 	difference_type;
 
     typedef map_iterator<value_type>					iterator;
     typedef const map_iterator<value_type>              const_iterator;
-    typedef reverse_iterator<iterator>					reverse_iterator;
-    typedef std::reverse_iterator<const_iterator>    	const_reverse_iterator;
+    typedef ft::reverse_iterator<iterator>					reverse_iterator;
+    typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
+
+	class value_compare: public std::binary_function<value_type, value_type, bool> {
+	private:
+        friend class map;
+    protected:
+        key_compare comp;
+
+        value_compare(key_compare c): comp(c) {}
+    public:
+        bool operator()(const value_type& x, const value_type& y) const { return comp(x.first, y.first); }
+    };
+
 
 
 private:
@@ -50,21 +62,29 @@ private:
 		return (ret);
 	}
 
-	node_pointer	append_node(node_pointer root, node_pointer ptr) {
-		if (!root) {
-			return ptr;
+	void	clear_map(node_pointer* root) {
+		if (!(*root))
+			return ;
+		node_pointer temp = *root;
+		delete (*root);
+		*root = 0;
+		clear_map(&temp->_left);
+		clear_map(&temp->_right);
+	}
+
+	bool	append_node(node_pointer* root, node_pointer parent, node_pointer ptr) {
+		if (!(*root)) {
+			*root = ptr;
+			(*root)->_parent = parent;
+			return true;
 		}
-		if (root->_val.first > ptr->_val.first) {
-			root->_left = append_node(root->_left, ptr);
-			root->_left->_parent = root;
-			return root->_left;
+		if ((*root)->_val.first > ptr->_val.first) {
+			return append_node(&(*root)->_left, *root, ptr);
 		}
-		else if (root->_val.first < ptr->_val.first) {
-			root->_right = append_node(root->_right, ptr);
-			root->_right->_parent = root;
-			return root->_right;
+		else if ((*root)->_val.first < ptr->_val.first) {
+			return append_node(&(*root)->_right, *root, ptr);
 		}
-		return NULL;
+		return false;
 	}
 
 	node_pointer	search_node(const key_type& k, node_pointer root) {
@@ -86,7 +106,7 @@ public:
 
 	explicit map (const key_compare& comp = key_compare(),
               const allocator_type& alloc = allocator_type())
-			  : _alloc(alloc), _key_comp(comp), _size(0), _super_node(NULL), _root(NULL) {}
+			  : _alloc(alloc), _key_comp(comp), _size(0), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {}
 	
 	// template <class InputIterator>
 	// map (InputIterator first, InputIterator last,
@@ -113,6 +133,8 @@ public:
 
 	iterator begin() {
 		node_pointer root = _root;
+		if (!root)
+			return iterator(_super_node);
 
 		while (root->_left) {
 			root = root->_left;
@@ -125,6 +147,8 @@ public:
 	}
 
 	iterator end() {
+		if (!_root)
+			return (iterator(_super_node));
 		return (iterator(_root->_parent));
 	}
 
@@ -166,21 +190,33 @@ public:
 		return search_node(k, _root)->_val.second;
 	}
 
-	pair<iterator,bool> insert (const value_type& val) {
-		node_pointer	root = append_node(_root, make_node(val));
-
-		if (_size == 0) {
-			_root = root;
-		}
-		if (!root) {
-			return make_pair<iterator, bool>(iterator(root), false);
-		} else {
-			++_size;
-			return make_pair<iterator, bool>(iterator(root), true);
-		}
+	mapped_type& at (const key_type& k) {
+		return this->operator[](k);
 	}
 
-	iterator insert (iterator position, const value_type& val);
+	const mapped_type& at (const key_type& k) const {
+		return this->operator[](k);
+	}
+
+	pair<iterator,bool> insert (const value_type& val) {
+		node_pointer	curr = make_node(val);
+		bool			ret;
+		
+		if (!_root) {
+			_root = curr;
+			_super_node->_left = _root;
+			_root->_parent = _super_node;
+			ret = true;
+		} else {
+			ret = append_node(&_root, _root->_parent, curr);
+		}
+		++_size;
+		return make_pair<iterator, bool>(iterator(curr), true);
+	}
+
+	iterator insert (iterator position, const value_type& val) {
+		return position;
+	}
 
 	template <class InputIterator>
 	void insert (InputIterator first, InputIterator last);
@@ -193,32 +229,70 @@ public:
 
 	void swap (map& x);
 
-	void clear();
-
-	key_compare key_comp() const;
-
-	// value_compare value_comp() const;
-
-	iterator find (const key_type& k) {
-		iterator ret = iterator(search_node(k, _root));
-		return ret;
+	void clear() {
+		clear_map(&_root);
+		_size = 0;
 	}
 
-	// const_iterator find (const key_type& k) const;
+	key_compare key_comp() const {
+		return _key_comp;
+	}
 
-	size_type count (const key_type& k) const;
+	value_compare value_comp() const {
+		return value_compare(_key_comp);
+	}
 
-	iterator lower_bound (const key_type& k);
+	iterator find (const key_type& k) {
+		node_pointer ptr = search_node(k, _root);
+		if (ptr == _root)
+			return end();
+		return iterator(ptr);
+	}
 
-	// const_iterator lower_bound (const key_type& k) const;
+	const_iterator find (const key_type& k) const {
+		return static_cast<const_iterator>(find(k));
+	}
 
-	iterator upper_bound (const key_type& k);
+	size_type count (const key_type& k) const {
+		iterator find = find(k);
 
-	// const_iterator upper_bound (const key_type& k) const;
+		if (find == end()) {
+			return 0;
+		}
+		return 1;
+	}
 
-	// pair<const_iterator,const_iterator> equal_range (const key_type& k) const;
+	iterator lower_bound (const key_type& k) {
+		for (iterator it = begin(); it != end(); ++it) {
+			if (!_key_comp(it->first, k))
+				return it;
+		}
+		return end();
+	}
 
-	pair<iterator,iterator>             equal_range (const key_type& k);
+	const_iterator lower_bound (const key_type& k) const {
+		return static_cast<const_iterator>(lower_bound(k));
+	}
+
+	iterator upper_bound (const key_type& k) {
+		for (iterator it = begin(); it != end(); ++it) {
+			if (_key_comp(k, it->first))
+				return it;
+		}
+		return end();
+	}
+
+	const_iterator upper_bound (const key_type& k) const {
+		return static_cast<const_iterator>(upper_bound(k));
+	}
+
+	pair<iterator,iterator>	equal_range (const key_type& k) {
+		return make_pair<iterator, iterator>(lower_bound(k), upper_bound(k));
+	}
+
+	pair<const_iterator,const_iterator> equal_range (const key_type& k) const {
+		return make_pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
+	}
 
 	allocator_type get_allocator() const {
 		return _alloc;
