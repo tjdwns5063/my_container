@@ -64,7 +64,7 @@ private:
 
 	node_pointer	make_node(value_type val) {
 		node_pointer ret = _node_alloc.allocate(1);
-		// value_type	container = make_pair<int, int>(k, v);
+
 		_node_alloc.construct(ret, Node<value_type>(val));
 		return (ret);
 	}
@@ -214,20 +214,27 @@ public:
 		   insert(first, last);
 	   }
 
-	map (const map& x): _alloc(x._alloc), _key_comp(x._key_comp), _size(x._size), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {
+	map (const map& x): _alloc(x._alloc), _key_comp(x._key_comp), _size(0), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {
 		std::cout << "copy constructor called\n";
 		insert(x.begin(), x.end());
 	}
 
-	~map() {}
+	~map() { clear(); };
 
 
 	map& operator= (const map& x) {
-		std::cout << "assign operator called\n";
-		if (*this != x) {
+		std::cout << "assign constructor called\n";
+		if (*this == x)
+			return (*this);
+		if (empty()) {
 			_alloc = x._alloc;
 			_key_comp = x._key_comp;
-			_size = x._size;
+			insert(x.begin(), x.end());
+		} else {
+			clear();
+			_super_node = make_node(pair<key_type, mapped_type>());
+			_alloc = x._alloc;
+			_key_comp = x._key_comp;
 			insert(x.begin(), x.end());
 		}
 		return (*this);
@@ -284,7 +291,7 @@ public:
 	}
 
 	bool empty() const {
-		if (_size != 0)
+		if (_size == 0)
 			return true;
 		return false;
 	}
@@ -356,10 +363,17 @@ public:
 		}
 	}
 
-	void swap (map& x);
+	void swap (map& x) {
+		map<key_type, mapped_type> temp(x);
+
+		x = *this;
+		*this = temp;
+	}
 
 	void clear() {
 		clear_map(&_root);
+		delete _super_node;
+		_super_node = 0;
 		_size = 0;
 	}
 
@@ -436,8 +450,9 @@ void swap(map<Key, T, Compare, Allocator>& x, map<Key, T, Compare, Allocator>& y
 template <class Key, class T, class Compare, class Alloc>
 bool operator== ( const map<Key,T,Compare,Alloc>& lhs,
                     const map<Key,T,Compare,Alloc>& rhs ) {
-	if (lhs.size() != rhs.size())
+	if (lhs.size() != rhs.size()) {
 		return false;
+	}
 	return equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 

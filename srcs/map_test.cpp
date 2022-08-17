@@ -33,31 +33,52 @@ int main()
 	std::map<int, int>	m;
 	ft::map<int, int> mm;
 
-	mm.insert(ft::make_pair<int, int>(7,0));
-	mm.insert(ft::make_pair<int, int>(2,1));
-	mm.insert(ft::make_pair<int, int>(10,2));
-	mm.insert(ft::make_pair<int, int>(8,3));
-	mm.insert(ft::make_pair<int, int>(9,4));
-	mm.insert(ft::make_pair<int, int>(12,5));
-	mm.insert(ft::make_pair<int, int>(13,6));
+	// mm.insert(ft::make_pair<int, int>(7,0));
+	// mm.insert(ft::make_pair<int, int>(2,1));
+	// mm.insert(ft::make_pair<int, int>(10,2));
+	// mm.insert(ft::make_pair<int, int>(8,3));
+	// mm.insert(ft::make_pair<int, int>(9,4));
+	// mm.insert(ft::make_pair<int, int>(12,5));
+	// mm.insert(ft::make_pair<int, int>(13,6));
+	m.insert(std::make_pair(0, 1));
+	m.insert(std::make_pair(1, 2));
 
+	mm.insert(ft::make_pair<int, int>(0, 1));
+	mm.insert(ft::make_pair<int, int>(1, 2));
 
-	m.insert(std::make_pair<int, int>(7,0));
-	m.insert(std::make_pair<int, int>(2,1));
-	m.insert(std::make_pair<int, int>(10,2));
-	m.insert(std::make_pair<int, int>(8,3));
-	m.insert(std::make_pair<int, int>(9,4));
-	m.insert(std::make_pair<int, int>(12,5));
-	m.insert(std::make_pair<int, int>(13,6));
+	// m.insert(std::make_pair<int, int>(7,0));
+	// m.insert(std::make_pair<int, int>(2,1));
+	// m.insert(std::make_pair<int, int>(10,2));
+	// m.insert(std::make_pair<int, int>(8,3));
+	// m.insert(std::make_pair<int, int>(9,4));
+	// m.insert(std::make_pair<int, int>(12,5));
+	// m.insert(std::make_pair<int, int>(13,6));
 
 	std::map<int, int>	cp_m;
 	ft::map<int, int>	cp_mm;
 
-	cp_m = m;
-	cp_mm = mm;
+	cp_m.insert(std::make_pair(2, 3));
+	cp_m.insert(std::make_pair(3, 4));
 
+	cp_mm.insert(ft::make_pair<int, int>(2, 3));
+	cp_mm.insert(ft::make_pair<int, int>(3, 4));
+
+	m.swap(cp_m);
+	mm.swap(cp_mm);
+
+	print_map(m);
 	print_map(cp_m);
+	std::cout << "------------------------\n";
+	print_map(mm);
 	print_map(cp_mm);
+	// cp_m = m;
+	// cp_mm = mm;
+
+	// print_map(mm);
+	// print_map(cp_mm);
+
+	// std::cout << (cp_m == m) << '\n';
+	// std::cout << (cp_mm == mm) << '\n';
 
 	// std::cout << m.erase(2) << '\n';
 	// std::cout << m.erase(7) << '\n';
