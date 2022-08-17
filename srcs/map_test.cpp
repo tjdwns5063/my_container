@@ -18,6 +18,14 @@ typedef ft::map<int, int>::const_iterator	m_cit;
 typedef ft::map<int, int>::reverse_iterator	m_rit;
 typedef ft::map<int, int>::const_reverse_iterator m_crit;
 
+template <typename Map>
+void	print_map(Map& m) {
+	typedef typename Map::iterator iter;
+	for (iter it = m.begin(); it != m.end(); ++it) {
+		std::cout << it->first << " " << it->second << '\n';
+	}
+}
+
 int main()
 {
 	std::cout << "this is map\n";
@@ -26,20 +34,39 @@ int main()
 	ft::map<int, int> mm;
 	ft::map<int, int>	cp_mm;
 
-	mm.insert(ft::make_pair<int, int>(0,1));
-	mm.insert(ft::make_pair<int, int>(1,2));
-	mm.insert(ft::make_pair<int, int>(2,3));
+	mm.insert(ft::make_pair<int, int>(7,0));
+	mm.insert(ft::make_pair<int, int>(2,1));
+	mm.insert(ft::make_pair<int, int>(10,2));
+	mm.insert(ft::make_pair<int, int>(8,3));
+	mm.insert(ft::make_pair<int, int>(9,4));
+	mm.insert(ft::make_pair<int, int>(12,5));
+	mm.insert(ft::make_pair<int, int>(13,6));
 
-	cp_mm.insert(mm.begin(), mm.end());
 
-	for (m_it it = cp_mm.begin(); it != cp_mm.end(); ++it) {
-		std::cout << it->first << " " << it->second << '\n';
-	}
+	m.insert(std::make_pair<int, int>(7,0));
+	m.insert(std::make_pair<int, int>(2,1));
+	m.insert(std::make_pair<int, int>(10,2));
+	m.insert(std::make_pair<int, int>(8,3));
+	m.insert(std::make_pair<int, int>(9,4));
+	m.insert(std::make_pair<int, int>(12,5));
+	m.insert(std::make_pair<int, int>(13,6));
 
-	m.insert(std::make_pair(0,1));
-	m.insert(std::make_pair(1,2));
-	m.insert(std::make_pair(2,3));
 
+	// std::cout << m.erase(2) << '\n';
+	// std::cout << m.erase(7) << '\n';
+	// std::cout << m.erase(8) << '\n';
+
+	// std::cout << mm.erase(2) << '\n';
+	// std::cout << mm.erase(7) << '\n';
+	// std::cout << mm.erase(8) << '\n';
+
+	m.erase(m.begin(), m.end());
+	mm.erase(mm.begin(), mm.end());
+
+	print_map<std::map<int, int> >(m);
+	std::cout << "-----------------------------\n";
+	std::cout << "-----------------------------\n";
+	print_map<ft::map<int, int> >(mm);
 
 	// std::cout << "standart: " << m.lower_bound(1)->first << '\n';
 	// std::cout << "standart: " << m.upper_bound(1)->first << '\n';

@@ -27,8 +27,8 @@ public:
 
     typedef map_iterator<value_type>					iterator;
     typedef const map_iterator<value_type>              const_iterator;
-    typedef ft::reverse_iterator<iterator>					reverse_iterator;
-    typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
+    typedef ft::reverse_iterator<iterator>				reverse_iterator;
+    typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
 	class value_compare: public std::binary_function<value_type, value_type, bool> {
 	private:
@@ -47,6 +47,12 @@ private:
 	typedef typename iterator::node_type		node;
 	typedef typename iterator::node_pointer		node_pointer;
 	typedef std::allocator<node>				node_allocator;
+
+	enum	e_node_child_state {
+		NO,
+		ONE,
+		TWO
+	};
 
 	iterator									_iter;
 	node_allocator								_node_alloc;
@@ -98,7 +104,98 @@ private:
 		if (ret && ret->_val.first == k) {
 			return ret;
 		}
-		return root;
+		return NULL;
+	}
+
+	e_node_child_state	node_child_cnt(node_pointer p) {
+		if (p->_left && p->_right)
+			return TWO;
+		else if (p->_left || p->_right)
+			return ONE;
+		return NO;
+	}
+
+	void	delete_leaf_node(node_pointer p) {
+		std::cout << "Leaf\n";
+		if (p->_parent->_left == p)
+			p->_parent->_left = NULL;
+		else
+			p->_parent->_right = NULL;
+		if (p == _root)
+			_root = p->_parent->_left;
+		_node_alloc.deallocate(p, 1); // 메모리 해제
+		_node_alloc.destroy(p); // 소멸자 호출
+	}
+
+	void	delete_one_child_node(node_pointer p) {
+		std::cout << "One\n";
+
+		if (p->_parent->_left == p) {
+			if (p->_left) {
+				p->_parent->_left = p->_left;
+				p->_left->_parent = p->_parent;
+			}
+			else if (p->_right) {
+				p->_parent->_left = p->_right;
+				p->_right->_parent = p->_parent;
+			}
+		} else {
+			if (p->_left) {
+				p->_parent->_right = p->_left;
+				p->_left->_parent = p->_parent;
+			}
+			else if (p->_right) {
+				p->_parent->_right = p->_right;
+				p->_right->_parent = p->_parent;
+			}
+		}
+		if (p == _root)
+			_root = p->_parent->_left;
+		_node_alloc.deallocate(p, 1);
+		_node_alloc.destroy(p);
+	}
+
+	void	delete_two_child_node(node_pointer p) {
+		std::cout << "Two\n";
+
+		node_pointer	min_left = p->_right;
+
+		while (min_left->_left) {
+			min_left = min_left->_left;
+		}
+		min_left->_left = p->_left;
+		p->_left->_parent = min_left;
+		min_left->_parent = p->_right;
+		if (p->_parent->_left == p) {
+			p->_parent->_left = p->_right;
+			p->_right->_parent = p->_parent;
+		} else {
+			p->_parent->_right = p->_right;
+			p->_right->_parent = p->_parent;
+		}
+		if (p == _root)
+			_root = p->_parent->_left;
+		_node_alloc.deallocate(p, 1);
+		_node_alloc.destroy(p);
+	}
+
+	bool	delete_node(const key_type& k, node_pointer root) {
+		node_pointer searched_node = search_node(k, root);
+
+		if (!searched_node)
+			return false;
+		switch (node_child_cnt(searched_node)) {
+			case NO:
+				delete_leaf_node(searched_node);
+				break ;
+			case ONE:
+				delete_one_child_node(searched_node);
+				break ;
+			case TWO:
+				delete_two_child_node(searched_node);
+				break ;
+		}
+		return true;
 	}
 
 public:
@@ -215,7 +312,8 @@ public:
 	}
 
 	iterator insert (iterator position, const value_type& val) {
-		
+		pair<iterator, bool> pair = insert(val);
+		return pair.first;
 	}
 
 	template <class InputIterator>
@@ -225,11 +323,25 @@ public:
 		}
 	}
 
-    void erase (iterator position);
+    void erase (iterator position) {
+		erase(position->first);
+	}
 
-	size_type erase (const key_type& k);
+	size_type erase (const key_type& k) {
+		if (delete_node(k, _root))
+			return 1;
+		return 0;
+	}
 
-	void erase (iterator first, iterator last);
+	void erase (iterator first, iterator last) {
+		int	n = 0;
+		iterator	prev;
+		while (first != last) {
+			prev = first;
+			first = ++first;
+			erase(prev);
+		}
+	}
 
 	void swap (map& x);
 
@@ -248,7 +360,7 @@ public:
 
 	iterator find (const key_type& k) {
 		node_pointer ptr = search_node(k, _root);
-		if (ptr == _root)
+		if (!ptr)
 			return end();
 		return iterator(ptr);
 	}
