@@ -2,6 +2,7 @@
 # define MAP_HPP
 
 #include <algorithm>
+#include "comp_algorithm.hpp"
 #include "iterator.hpp"
 
 namespace ft {
@@ -205,25 +206,29 @@ public:
               const allocator_type& alloc = allocator_type())
 			  : _alloc(alloc), _key_comp(comp), _size(0), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {}
 	
-	// template <class InputIterator>
-	// map (InputIterator first, InputIterator last,
-    //    const key_compare& comp = key_compare(),
-    //    const allocator_type& alloc = allocator_type())
-	//    : _alloc(alloc), _key_comp(comp), _size(0), _root(NULL) {}
+	template <class InputIterator>
+	map (InputIterator first, InputIterator last,
+       const key_compare& comp = key_compare(),
+       const allocator_type& alloc = allocator_type())
+	   : _alloc(alloc), _key_comp(comp), _size(0), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {
+		   insert(first, last);
+	   }
 
-	// map (const map& x): _alloc(x._alloc), _key_comp(x._key_comp), _size(x._size) {
-	// 	//insert(x.begin(), x.end());
-	// }
+	map (const map& x): _alloc(x._alloc), _key_comp(x._key_comp), _size(x._size), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {
+		std::cout << "copy constructor called\n";
+		insert(x.begin(), x.end());
+	}
 
 	~map() {}
 
 
 	map& operator= (const map& x) {
+		std::cout << "assign operator called\n";
 		if (*this != x) {
 			_alloc = x._alloc;
 			_key_comp = x._key_comp;
 			_size = x._size;
-			// insert(x.begin(), x.end());
+			insert(x.begin(), x.end());
 		}
 		return (*this);
 	}
@@ -240,7 +245,14 @@ public:
 	}
 
 	const_iterator begin() const {
-		return static_cast<const_iterator>(begin());
+		node_pointer root = _root;
+		if (!root)
+			return iterator(_super_node);
+
+		while (root->_left) {
+			root = root->_left;
+		}
+		return iterator(root);
 	}
 
 	iterator end() {
@@ -250,7 +262,9 @@ public:
 	}
 
 	const_iterator	end() const {
-		return static_cast<const_iterator>(end());
+		if (!_root)
+			return (iterator(_super_node));
+		return (iterator(_root->_parent));
 	}
 
 	reverse_iterator rbegin() {
@@ -334,7 +348,6 @@ public:
 	}
 
 	void erase (iterator first, iterator last) {
-		int	n = 0;
 		iterator	prev;
 		while (first != last) {
 			prev = first;
@@ -420,6 +433,44 @@ void swap(map<Key, T, Compare, Allocator>& x, map<Key, T, Compare, Allocator>& y
     x.swap(y);
 }
 
+template <class Key, class T, class Compare, class Alloc>
+bool operator== ( const map<Key,T,Compare,Alloc>& lhs,
+                    const map<Key,T,Compare,Alloc>& rhs ) {
+	if (lhs.size() != rhs.size())
+		return false;
+	return equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator!= ( const map<Key,T,Compare,Alloc>& lhs,
+                    const map<Key,T,Compare,Alloc>& rhs ) {
+	return !(lhs == rhs);
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator<  ( const map<Key,T,Compare,Alloc>& lhs,
+                    const map<Key,T,Compare,Alloc>& rhs ) {
+	return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator<= ( const map<Key,T,Compare,Alloc>& lhs,
+                    const map<Key,T,Compare,Alloc>& rhs ) {
+	return !(rhs < lhs);
+}
+
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator>  ( const map<Key,T,Compare,Alloc>& lhs,
+                    const map<Key,T,Compare,Alloc>& rhs ) {
+	return (rhs < lhs);
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator>= ( const map<Key,T,Compare,Alloc>& lhs,
+                    const map<Key,T,Compare,Alloc>& rhs ) {
+	return !(lhs < rhs);
+}
 }
 
 #endif

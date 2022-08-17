@@ -32,7 +32,6 @@ int main()
 
 	std::map<int, int>	m;
 	ft::map<int, int> mm;
-	ft::map<int, int>	cp_mm;
 
 	mm.insert(ft::make_pair<int, int>(7,0));
 	mm.insert(ft::make_pair<int, int>(2,1));
@@ -51,6 +50,14 @@ int main()
 	m.insert(std::make_pair<int, int>(12,5));
 	m.insert(std::make_pair<int, int>(13,6));
 
+	std::map<int, int>	cp_m;
+	ft::map<int, int>	cp_mm;
+
+	cp_m = m;
+	cp_mm = mm;
+
+	print_map(cp_m);
+	print_map(cp_mm);
 
 	// std::cout << m.erase(2) << '\n';
 	// std::cout << m.erase(7) << '\n';
@@ -60,13 +67,13 @@ int main()
 	// std::cout << mm.erase(7) << '\n';
 	// std::cout << mm.erase(8) << '\n';
 
-	m.erase(m.begin(), m.end());
-	mm.erase(mm.begin(), mm.end());
+	// m.erase(m.begin(), m.end());
+	// mm.erase(mm.begin(), mm.end());
 
-	print_map<std::map<int, int> >(m);
-	std::cout << "-----------------------------\n";
-	std::cout << "-----------------------------\n";
-	print_map<ft::map<int, int> >(mm);
+	// print_map<std::map<int, int> >(m);
+	// std::cout << "-----------------------------\n";
+	// std::cout << "-----------------------------\n";
+	// print_map<ft::map<int, int> >(mm);
 
 	// std::cout << "standart: " << m.lower_bound(1)->first << '\n';
 	// std::cout << "standart: " << m.upper_bound(1)->first << '\n';
