@@ -29,6 +29,7 @@ fclean:
 	rm -rf $(NAME) $(MAP)
 
 re:
-	rm -rf $(OBJS)
-	rm -rf $(NAME)
+	rm -rf $(OBJS) $(MAP_OBJS)
+	rm -rf $(NAME) $(MAP)
 	make -C . all
+	make -C . map

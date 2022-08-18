@@ -55,6 +55,13 @@ private:
 		TWO
 	};
 
+	enum	e_rotate_state {
+		RR,
+		LL,
+		RL,
+		LR
+	};
+
 	iterator									_iter;
 	node_allocator								_node_alloc;
 	allocator_type								_alloc;
@@ -199,6 +206,114 @@ private:
 		return true;
 	}
 
+	ssize_t	get_node_height(node_pointer ptr) {
+		if (!ptr)
+			return (0);
+		return 1 + std::max(get_node_height(ptr->_left), get_node_height(ptr->_right));
+	}
+
+	ssize_t	get_balanced_factor(node_pointer ptr) {
+		if (!ptr)
+			return (0);
+		return get_node_height(ptr->_left) - get_node_height(ptr->_right);
+	}
+
+	node_pointer	check_balanced_factor(node_pointer root, node_pointer target) {
+		ssize_t balanced_factor = get_balanced_factor(root);
+
+		if (!root) {
+			return target;
+		} else if (abs(balanced_factor) > 1) {
+			target = root;
+			// std::cout << "target : " << target->_val.first << '\n';
+		}
+		node_pointer ret = NULL;
+		target = check_balanced_factor(root->_left, target);
+		target = check_balanced_factor(root->_right, target);
+		return target;
+	}
+
+	e_rotate_state	check_rotate_state(node_pointer target) {
+		ssize_t balanced_factor = get_balanced_factor(target);
+		if (balanced_factor > 1 && get_balanced_factor(target->_left) > 0)
+			return (LL);
+		else if (balanced_factor > 1 && get_balanced_factor(target->_left) < 0)
+			return (LR);
+		else if (balanced_factor < -1 && get_balanced_factor(target->_right) < 0)
+			return (RR);
+		return (RL);
+	}
+
+	void	rotate_right(node_pointer target) {
+		node_pointer child = target->_left;
+
+		target->_left = child->_right;
+		if (child->_right) {
+			child->_right->_parent = target->_left;
+		}
+		child->_right = target;
+		child->_parent = target->_parent;
+		if (target->_parent->_left == target) {
+			target->_parent->_left = child;
+		} else {
+			target->_parent->_right = child;
+		}
+		target->_parent = child;
+		if (target == _root) {
+			_root = child;
+		}
+	}
+
+	void	rotate_left(node_pointer target) {
+		node_pointer child = target->_right;
+
+		target->_right = child->_left;
+		if (child->_left) {
+			child->_left->_parent = target->_right;
+		}
+		child->_left = target;
+		child->_parent = target->_parent;
+		if (target->_parent->_left == target) {
+			target->_parent->_left = child;
+		} else {
+			target->_parent->_right = child;
+		}
+		target->_parent = child;
+		if (target == _root) {
+			_root = child;
+		}
+	}
+
+	bool	rotate_tree(node_pointer root) {
+		node_pointer	target = check_balanced_factor(root, NULL);
+		
+		if (!target)
+			return false;
+		std::cout << "root: " << root->_val.first << '\n';
+		std::cout << "target: " << target->_val.first << '\n';
+		switch (check_rotate_state(target)) {
+			case LL:
+				std::cout << "LL\n";
+				rotate_right(target);
+				break ;
+			case RR:
+				std::cout << "RR\n";
+				rotate_left(target);
+				break ;
+			case LR:
+				std::cout << "LR\n";
+				rotate_left(target->_left);
+				rotate_right(target);
+				break ;
+			case RL:
+				std::cout << "RL\n";
+				rotate_right(target->_right);
+				rotate_left(target);
+				break ;
+		}
+		return true;
+	}
+
 public:
 	node_pointer	_root;
 
@@ -219,7 +334,7 @@ public:
 		insert(x.begin(), x.end());
 	}
 
-	~map() { clear(); };
+	~map() { /*clear();*/ };
 
 
 	map& operator= (const map& x) {
@@ -328,6 +443,7 @@ public:
 		} else {
 			ret = append_node(&_root, _root->_parent, curr);
 		}
+		rotate_tree(_root);
 		++_size;
 		return make_pair<iterator, bool>(iterator(curr), true);
 	}

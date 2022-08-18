@@ -26,6 +26,14 @@ void	print_map(Map& m) {
 	}
 }
 
+void	preorder_traversal(ft::Node<ft::pair<const int, int> >* root) {
+	if (!root)
+		return ;
+	std::cout << root->_val.first << " " << root->_val.second << '\n';
+	preorder_traversal(root->_left);
+	preorder_traversal(root->_right);
+}
+
 int main()
 {
 	std::cout << "this is map\n";
@@ -43,8 +51,16 @@ int main()
 	m.insert(std::make_pair(0, 1));
 	m.insert(std::make_pair(1, 2));
 
-	mm.insert(ft::make_pair<int, int>(0, 1));
-	mm.insert(ft::make_pair<int, int>(1, 2));
+	for (int i = 1; i < 11; ++i) {
+		mm.insert(ft::make_pair<int, int>(i, i + 1));
+	}
+	// mm.insert(ft::make_pair<int, int>(1, 1));
+	// mm.insert(ft::make_pair<int, int>(3, 2));
+	// mm.insert(ft::make_pair<int, int>(2, 2));
+	
+	preorder_traversal(mm._root);
+
+	// print_map(mm);
 
 	// m.insert(std::make_pair<int, int>(7,0));
 	// m.insert(std::make_pair<int, int>(2,1));
@@ -54,23 +70,23 @@ int main()
 	// m.insert(std::make_pair<int, int>(12,5));
 	// m.insert(std::make_pair<int, int>(13,6));
 
-	std::map<int, int>	cp_m;
-	ft::map<int, int>	cp_mm;
+	// std::map<int, int>	cp_m;
+	// ft::map<int, int>	cp_mm;
 
-	cp_m.insert(std::make_pair(2, 3));
-	cp_m.insert(std::make_pair(3, 4));
+	// cp_m.insert(std::make_pair(2, 3));
+	// cp_m.insert(std::make_pair(3, 4));
 
-	cp_mm.insert(ft::make_pair<int, int>(2, 3));
-	cp_mm.insert(ft::make_pair<int, int>(3, 4));
+	// cp_mm.insert(ft::make_pair<int, int>(2, 3));
+	// cp_mm.insert(ft::make_pair<int, int>(3, 4));
 
-	m.swap(cp_m);
-	mm.swap(cp_mm);
+	// m.swap(cp_m);
+	// mm.swap(cp_mm);
 
-	print_map(m);
-	print_map(cp_m);
-	std::cout << "------------------------\n";
-	print_map(mm);
-	print_map(cp_mm);
+	// print_map(m);
+	// print_map(cp_m);
+	// std::cout << "------------------------\n";
+	// print_map(mm);
+	// print_map(cp_mm);
 	// cp_m = m;
 	// cp_mm = mm;
 
