@@ -86,17 +86,22 @@ private:
 		clear_map(&temp->_right);
 	}
 
-	bool	append_node(node_pointer* root, node_pointer parent, node_pointer ptr) {
-		if (!(*root)) {
-			*root = ptr;
-			(*root)->_parent = parent;
+	bool	append_node(node_pointer root, node_pointer parent, node_pointer ptr) {
+		if (!root) {
+			root = ptr;
+			root->_parent = parent;
+			if (parent->_val.first < ptr->_val.first) {
+				parent->_right = ptr;
+			} else {
+				parent->_left = ptr;
+			}
 			return true;
 		}
-		if ((*root)->_val.first > ptr->_val.first) {
-			return append_node(&(*root)->_left, *root, ptr);
+		if (root->_val.first > ptr->_val.first) {
+			return append_node(root->_left, root, ptr);
 		}
-		else if ((*root)->_val.first < ptr->_val.first) {
-			return append_node(&(*root)->_right, *root, ptr);
+		else if (root->_val.first < ptr->_val.first) {
+			return append_node(root->_right, root, ptr);
 		}
 		return false;
 	}
@@ -124,7 +129,7 @@ private:
 	}
 
 	void	delete_leaf_node(node_pointer p) {
-		std::cout << "Leaf\n";
+		// std::cout << "Leaf\n";
 		if (p->_parent->_left == p)
 			p->_parent->_left = NULL;
 		else
@@ -136,7 +141,7 @@ private:
 	}
 
 	void	delete_one_child_node(node_pointer p) {
-		std::cout << "One\n";
+		// std::cout << "One\n";
 
 		if (p->_parent->_left == p) {
 			if (p->_left) {
@@ -164,7 +169,7 @@ private:
 	}
 
 	void	delete_two_child_node(node_pointer p) {
-		std::cout << "Two\n";
+		// std::cout << "Two\n";
 
 		node_pointer	min_left = p->_right;
 
@@ -203,6 +208,7 @@ private:
 				delete_two_child_node(searched_node);
 				break ;
 		}
+		rotate_tree(_root);
 		return true;
 	}
 
@@ -289,24 +295,24 @@ private:
 		
 		if (!target)
 			return false;
-		std::cout << "root: " << root->_val.first << '\n';
-		std::cout << "target: " << target->_val.first << '\n';
+		// std::cout << "root: " << root->_val.first << '\n';
+		// std::cout << "target: " << target->_val.first << '\n';
 		switch (check_rotate_state(target)) {
 			case LL:
-				std::cout << "LL\n";
+				// std::cout << "LL\n";
 				rotate_right(target);
 				break ;
 			case RR:
-				std::cout << "RR\n";
+				// std::cout << "RR\n";
 				rotate_left(target);
 				break ;
 			case LR:
-				std::cout << "LR\n";
+				// std::cout << "LR\n";
 				rotate_left(target->_left);
 				rotate_right(target);
 				break ;
 			case RL:
-				std::cout << "RL\n";
+				// std::cout << "RL\n";
 				rotate_right(target->_right);
 				rotate_left(target);
 				break ;
@@ -441,9 +447,9 @@ public:
 			_root->_parent = _super_node;
 			ret = true;
 		} else {
-			ret = append_node(&_root, _root->_parent, curr);
+			ret = append_node(_root, _root->_parent, curr);
+			rotate_tree(_root);
 		}
-		rotate_tree(_root);
 		++_size;
 		return make_pair<iterator, bool>(iterator(curr), true);
 	}
@@ -465,8 +471,10 @@ public:
 	}
 
 	size_type erase (const key_type& k) {
-		if (delete_node(k, _root))
+		if (delete_node(k, _root)) {
+			rotate_tree(_root);
 			return 1;
+		}
 		return 0;
 	}
 

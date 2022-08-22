@@ -48,8 +48,8 @@ int main()
 	// mm.insert(ft::make_pair<int, int>(9,4));
 	// mm.insert(ft::make_pair<int, int>(12,5));
 	// mm.insert(ft::make_pair<int, int>(13,6));
-	m.insert(std::make_pair(0, 1));
-	m.insert(std::make_pair(1, 2));
+	// m.insert(std::make_pair(0, 1));
+	// m.insert(std::make_pair(1, 2));
 
 	for (int i = 1; i < 11; ++i) {
 		mm.insert(ft::make_pair<int, int>(i, i + 1));
