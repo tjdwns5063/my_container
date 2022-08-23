@@ -208,63 +208,63 @@ namespace ft {
 			return (_p);
 		}
 
-		const vector_iterator&	operator++() {
+		vector_iterator&	operator++() {
 			++_p;
 			return (*this);
 		}
 
-		const vector_iterator	operator++(int) {
+		vector_iterator	operator++(int) {
 			vector_iterator<It> temp(*this);
 			++(*this);
 			return (temp);
 		}
 
-		const vector_iterator&	operator--() {
+		vector_iterator&	operator--() {
 			--_p;
 			return (*this);
 		}
 
-		const vector_iterator	operator--(int) {
+		vector_iterator	operator--(int) {
 			vector_iterator<It> temp(*this);
 			--(*this);
 			return (temp);
 		}
 
-		const vector_iterator&	operator+=(difference_type size) {
+		vector_iterator&	operator+=(difference_type size) {
 			_p += size;
 			return (*this);
 		}
 
-		const vector_iterator	operator+(difference_type size) const {
+		vector_iterator	operator+(difference_type size) const {
 			vector_iterator<It> temp(*this);
 			temp += size;
 			return (temp);
 		}
 
-		const vector_iterator	operator-=(difference_type size) {
+		vector_iterator	operator-=(difference_type size) {
 			_p += (-size);
 			return (*this);
 		}
 
-		const vector_iterator	operator-(difference_type size) const {
+		vector_iterator	operator-(difference_type size) const {
 			vector_iterator<It> temp(*this);
 			temp -= size;
 			return (temp);
 		}
 
-		const reference	operator[](difference_type idx) const {
+		reference	operator[](difference_type idx) const {
 			return (*(_p + idx));
 		}
 
 		template <typename It1>
-		friend const vector_iterator<It1>	operator+(difference_type size, const vector_iterator<It1>& vit) {
+		friend vector_iterator<It1>	operator+(difference_type size, const vector_iterator<It1>& vit) {
 			vector_iterator<It1> temp(vit);
 			temp += size;
 			return (temp);
 		}
 
 		template <typename It1, typename It2>
-		friend const difference_type	operator-(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
+		friend difference_type	operator-(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
 			return (vit1._p - vit2._p);
 		}
 
