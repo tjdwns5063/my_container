@@ -456,6 +456,9 @@ public:
 
 	iterator insert (iterator position, const value_type& val) {
 		pair<iterator, bool> pair = insert(val);
+		// position의 부모노드를 확인하여 subtree만 돌고도 추가 가능한지 여부 체크
+		// 불가능하다면 기존의 insert로 트리 전부 순회
+		// 가능하다면 position의 서브 트리만 순회하여 insert
 		return pair.first;
 	}
 
