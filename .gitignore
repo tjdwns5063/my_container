@@ -7,3 +7,4 @@ test
 *.o
 test
 test.zip
+.DS_Store
