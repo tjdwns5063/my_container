@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include "comp_algorithm.hpp"
-#include "iterator.hpp"
+#include "map_iterator.hpp"
 
 namespace ft {
 
@@ -27,7 +27,7 @@ public:
     typedef typename allocator_type::difference_type 	difference_type;
 
     typedef map_iterator<value_type>					iterator;
-    typedef const map_iterator<value_type>              const_iterator;
+    typedef map_const_iterator<value_type>              const_iterator;
     typedef ft::reverse_iterator<iterator>				reverse_iterator;
     typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
@@ -233,7 +233,6 @@ private:
 			target = root;
 			// std::cout << "target : " << target->_val.first << '\n';
 		}
-		node_pointer ret = NULL;
 		target = check_balanced_factor(root->_left, target);
 		target = check_balanced_factor(root->_right, target);
 		return target;
@@ -456,6 +455,7 @@ public:
 
 	iterator insert (iterator position, const value_type& val) {
 		pair<iterator, bool> pair = insert(val);
+		(void)position;
 		// position의 부모노드를 확인하여 subtree만 돌고도 추가 가능한지 여부 체크
 		// 불가능하다면 기존의 insert로 트리 전부 순회
 		// 가능하다면 position의 서브 트리만 순회하여 insert
@@ -464,7 +464,7 @@ public:
 
 	template <class InputIterator>
 	void insert (InputIterator first, InputIterator last) {
-		for (iterator it = first; it != last; ++it) {
+		for (InputIterator it = first; it != last; ++it) {
 			insert(pair<key_type, mapped_type>(*it));
 		}
 	}
@@ -541,7 +541,11 @@ public:
 	}
 
 	const_iterator lower_bound (const key_type& k) const {
-		return static_cast<const_iterator>(lower_bound(k));
+		for (const_iterator it = begin(); it != end(); ++it) {
+			if (!_key_comp(it->first, k))
+				return it;
+		}
+		return end();
 	}
 
 	iterator upper_bound (const key_type& k) {
@@ -553,7 +557,11 @@ public:
 	}
 
 	const_iterator upper_bound (const key_type& k) const {
-		return static_cast<const_iterator>(upper_bound(k));
+		for (const_iterator it = begin(); it != end(); ++it) {
+			if (_key_comp(k, it->first))
+				return it;
+		}
+		return end();
 	}
 
 	pair<iterator,iterator>	equal_range (const key_type& k) {
