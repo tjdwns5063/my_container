@@ -111,7 +111,7 @@ private:
 		return root;
 	}
 
-	node_pointer	search_node(const key_type& k, node_pointer root) {
+	node_pointer	search_node(const key_type& k, node_pointer root) const {
 		if (!root || k == root->_val.first)
 			return root;
 		node_pointer ret = search_node(k, root->_left);
@@ -576,13 +576,16 @@ public:
 	}
 
 	const_iterator find (const key_type& k) const {
-		return static_cast<const_iterator>(find(k));
+		node_pointer ptr = search_node(k, _root);
+		if (!ptr)
+			return end();
+		return iterator(ptr);
 	}
 
 	size_type count (const key_type& k) const {
-		iterator find = find(k);
+		iterator found_iter = find(k);
 
-		if (find == end()) {
+		if (found_iter == end()) {
 			return 0;
 		}
 		return 1;
