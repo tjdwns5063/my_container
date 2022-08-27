@@ -47,6 +47,9 @@ void    map_insert_test() {
     std::map<int, std::string> s_m;
     ft::map<int, std::string> m_m;
 
+    std_map_single_item_insert_test(s_m, std::make_pair(0, "zero"));
+    ft_map_single_item_insert_test(m_m, ft::make_pair(0, "zero"));
+
     std_map_single_item_insert_test(s_m, std::make_pair(1, "42"));
     ft_map_single_item_insert_test(m_m, ft::make_pair(1, "42"));
 

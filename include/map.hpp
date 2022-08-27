@@ -70,20 +70,25 @@ private:
 	node_pointer								_super_node;
 
 	node_pointer	make_node(value_type val) {
-		node_pointer ret = _node_alloc.allocate(1);
+		node_pointer ret = _node_alloc.allocate(sizeof(node));
 
 		_node_alloc.construct(ret, Node<value_type>(val));
 		return (ret);
 	}
 
-	void	clear_map(node_pointer* root) {
-		if (!(*root))
+	void	clear_map(node_pointer root) {
+		if (!root)
 			return ;
-		node_pointer temp = *root;
-		delete (*root);
-		*root = 0;
-		clear_map(&temp->_left);
-		clear_map(&temp->_right);
+		node_pointer left = root->_left;
+		node_pointer right = root->_right;
+
+		// delete (*root);
+		// std::cout << "clear: " << root->_val.first << '\n';
+		_node_alloc.deallocate(root, sizeof(node));
+		// _node_alloc.destroy(root);
+		root = 0;
+		clear_map(left);
+		clear_map(right);
 	}
 
 	node_pointer	append_node(node_pointer root, node_pointer parent, const value_type& val) {
@@ -170,30 +175,52 @@ private:
 
 	void	delete_two_child_node(node_pointer p) {
 		// std::cout << "Two\n";
-
 		node_pointer	min_left = p->_right;
+		// node_pointer	min_left_right;
 
 		while (min_left->_left) {
 			min_left = min_left->_left;
 		}
-		min_left->_left = p->_left;
-		p->_left->_parent = min_left;
-		min_left->_parent = p->_right;
-		if (p->_parent->_left == p) {
-			p->_parent->_left = p->_right;
-			p->_right->_parent = p->_parent;
-		} else {
-			p->_parent->_right = p->_right;
-			p->_right->_parent = p->_parent;
+		// std::cout << "min_left: " << min_left->_val.first << '\n';
+		if (min_left != p->_right) {
+			min_left->_parent->_left = min_left->_right;
+			if (min_left->_parent->_left) {
+				min_left->_right->_parent = min_left->_parent;
+			}
+			min_left->_right = p->_right;
+			min_left->_right->_parent = min_left;
 		}
-		if (p == _root)
-			_root = p->_parent->_left;
+		// std::cout << "jhere\n";
+		min_left->_left = p->_left;
+		min_left->_left->_parent = min_left;
+		// min_left->_parent->_left = min_left->_right;
+		// if (min_left->_right)
+			// min_left->_right->_parent = min_left->_parent;
+
+
+
+		// if (min_left_right) {
+		// 	min_left_right->_parent = min_left->_parent;
+		// 	min_left->_parent->_left = min_left_right;
+		// }
+		if (p->_parent->_left == p) {
+			min_left->_parent = p->_parent;
+			p->_parent->_left = min_left;
+		} else {
+			min_left->_parent = p->_parent;
+			p->_parent->_right = min_left;
+		}
+		if (p == _root) {
+			_root = min_left;
+		}
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
+		// preorder_traversal(_root);
+		// std::cout << _root->_val.first << '\n';
 	}
 
-	bool	delete_node(const key_type& k, node_pointer root) {
-		node_pointer searched_node = search_node(k, root);
+	bool	delete_node(const key_type& k) {
+		node_pointer searched_node = search_node(k, _root);
 
 		if (!searched_node)
 			return false;
@@ -342,8 +369,8 @@ public:
 
 	map& operator= (const map& x) {
 		// std::cout << "assign constructor called\n";
-		if (*this == x)
-			return (*this);
+		// if (*this == x)
+		// 	return (*this);
 		if (empty()) {
 			_alloc = x._alloc;
 			_key_comp = x._key_comp;
@@ -356,6 +383,14 @@ public:
 			insert(x.begin(), x.end());
 		}
 		return (*this);
+	}
+
+	void	preorder_traversal(node_pointer root) {
+		if (!root)
+			return ;
+		std::cout << root->_val.first << " " << root->_val.second << '\n';
+		preorder_traversal(root->_left);
+		preorder_traversal(root->_right);
 	}
 
 	iterator begin() {
@@ -428,7 +463,7 @@ public:
 		if (searched) {
 			return searched->_val.second;
 		}
-		pair<iterator, bool> insert_ret = insert(make_pair(k, NULL));
+		pair<iterator, bool> insert_ret = insert(ft::make_pair<key_type, mapped_type>(k, mapped_type()));
 		return insert_ret.first->second;
 	}
 
@@ -457,6 +492,9 @@ public:
 			++_size;
 			inserted = true;
 		}
+		// if (_key_comp(_super_node->_val.first, begin()->first)) {
+			// _super_node->_val.first = 
+		// }
 		return ft::make_pair<iterator, bool>(iterator(ret), inserted);
 	}
 
@@ -481,19 +519,29 @@ public:
 	}
 
 	size_type erase (const key_type& k) {
-		if (delete_node(k, _root)) {
+		if (delete_node(k)) {
+			--_size;
 			rotate_tree(_root);
+			// preorder_traversal(_root);
 			return 1;
 		}
+		// preorder_traversal(_root);
 		return 0;
 	}
 
 	void erase (iterator first, iterator last) {
 		iterator	prev;
 		while (first != last) {
+			// if (_super_node == first._p) {
+			// 	std::cout << "equals ";
+			// }
+			// std::cout << first->first <<  " " << first->second << '\n';
+			// std::cout << "-----------------------\n";
 			prev = first;
-			first = ++first;
+			++first;
 			erase(prev);
+			// preorder_traversal(_root);
+			// std::cout << "-----------------------\n";
 		}
 	}
 
@@ -505,8 +553,9 @@ public:
 	}
 
 	void clear() {
-		clear_map(&_root);
-		delete _super_node;
+		clear_map(_root);
+		_node_alloc.deallocate(_super_node, sizeof(node));
+		_root = 0;
 		_super_node = 0;
 		_size = 0;
 	}
