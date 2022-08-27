@@ -86,24 +86,24 @@ private:
 		clear_map(&temp->_right);
 	}
 
-	bool	append_node(node_pointer root, node_pointer parent, node_pointer ptr) {
+	node_pointer	append_node(node_pointer root, node_pointer parent, const value_type& val) {
 		if (!root) {
-			root = ptr;
+			root = make_node(val);
 			root->_parent = parent;
-			if (parent->_val.first < ptr->_val.first) {
-				parent->_right = ptr;
+			if (parent->_val.first < val.first) {
+				parent->_right = root;
 			} else {
-				parent->_left = ptr;
+				parent->_left = root;
 			}
-			return true;
+			return root;
 		}
-		if (root->_val.first > ptr->_val.first) {
-			return append_node(root->_left, root, ptr);
+		if (root->_val.first > val.first) {
+			return append_node(root->_left, root, val);
 		}
-		else if (root->_val.first < ptr->_val.first) {
-			return append_node(root->_right, root, ptr);
+		else if (root->_val.first < val.first) {
+			return append_node(root->_right, root, val);
 		}
-		return false;
+		return root;
 	}
 
 	node_pointer	search_node(const key_type& k, node_pointer root) {
@@ -423,7 +423,13 @@ public:
 	}
 
 	mapped_type& operator[] (const key_type& k) {
-		return search_node(k, _root)->_val.second;
+		node_pointer searched = search_node(k, _root);
+
+		if (searched) {
+			return searched->_val.second;
+		}
+		pair<iterator, bool> insert_ret = insert(make_pair(k, NULL));
+		return insert_ret.first->second;
 	}
 
 	mapped_type& at (const key_type& k) {
@@ -435,20 +441,23 @@ public:
 	}
 
 	pair<iterator,bool> insert (const value_type& val) {
-		node_pointer	curr = make_node(val);
-		bool			ret;
+		node_pointer	ret;
+		bool			inserted = false;
 		
 		if (!_root) {
-			_root = curr;
+			_root = make_node(val);
 			_super_node->_left = _root;
 			_root->_parent = _super_node;
-			ret = true;
+			ret = _root;
 		} else {
-			ret = append_node(_root, _root->_parent, curr);
+			ret = append_node(_root, _root->_parent, val);
 			rotate_tree(_root);
 		}
-		++_size;
-		return make_pair<iterator, bool>(iterator(curr), true);
+		if (ret->_val.first == val.first && ret->_val.second == val.second) {
+			++_size;
+			inserted = true;
+		}
+		return ft::make_pair<iterator, bool>(iterator(ret), inserted);
 	}
 
 	iterator insert (iterator position, const value_type& val) {
@@ -473,7 +482,7 @@ public:
 
 	size_type erase (const key_type& k) {
 		if (delete_node(k, _root)) {
-			// rotate_tree(_root);
+			rotate_tree(_root);
 			return 1;
 		}
 		return 0;
