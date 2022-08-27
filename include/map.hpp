@@ -208,7 +208,6 @@ private:
 				delete_two_child_node(searched_node);
 				break ;
 		}
-		rotate_tree(_root);
 		return true;
 	}
 
@@ -231,7 +230,6 @@ private:
 			return target;
 		} else if (abs(balanced_factor) > 1) {
 			target = root;
-			// std::cout << "target : " << target->_val.first << '\n';
 		}
 		target = check_balanced_factor(root->_left, target);
 		target = check_balanced_factor(root->_right, target);
@@ -254,7 +252,7 @@ private:
 
 		target->_left = child->_right;
 		if (child->_right) {
-			child->_right->_parent = target->_left;
+			child->_right->_parent = target;
 		}
 		child->_right = target;
 		child->_parent = target->_parent;
@@ -274,7 +272,7 @@ private:
 
 		target->_right = child->_left;
 		if (child->_left) {
-			child->_left->_parent = target->_right;
+			child->_left->_parent = target;
 		}
 		child->_left = target;
 		child->_parent = target->_parent;
@@ -335,7 +333,7 @@ public:
 	   }
 
 	map (const map& x): _alloc(x._alloc), _key_comp(x._key_comp), _size(0), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {
-		std::cout << "copy constructor called\n";
+		// std::cout << "copy constructor called\n";
 		insert(x.begin(), x.end());
 	}
 
@@ -343,7 +341,7 @@ public:
 
 
 	map& operator= (const map& x) {
-		std::cout << "assign constructor called\n";
+		// std::cout << "assign constructor called\n";
 		if (*this == x)
 			return (*this);
 		if (empty()) {
@@ -475,7 +473,7 @@ public:
 
 	size_type erase (const key_type& k) {
 		if (delete_node(k, _root)) {
-			rotate_tree(_root);
+			// rotate_tree(_root);
 			return 1;
 		}
 		return 0;

@@ -15,7 +15,7 @@ typedef	std::map<int, int>::reverse_iterator s_rit;
 typedef	std::map<int, int>::const_reverse_iterator s_crit;
 
 typedef ft::map<int, int>::iterator	m_it;
-// typedef ft::map<int, int>::const_iterator	m_cit;
+typedef ft::map<int, int>::const_iterator	m_cit;
 // typedef ft::map<int, int>::reverse_iterator	m_rit;
 // typedef ft::map<int, int>::const_reverse_iterator m_crit;
 
@@ -52,12 +52,14 @@ int main()
 	m.insert(ft::make_pair(4, 12));
 	m.insert(ft::make_pair(5, 15));
 	m.insert(ft::make_pair(6, 18));
-	// m.insert(ft::make_pair(7, 21));
+	m.insert(ft::make_pair(7, 21));
 	// m.insert(ft::make_pair(8, 24));
 	// m.insert(ft::make_pair(9, 27));
 	// m.insert(ft::make_pair(10, 30));
 
-	for (m_it it = m.begin(); it != m.end(); ++it) {
+	for (m_cit it = m.begin(); it != m.end(); ++it) {
 		std::cout << it->first << " " << it->second << '\n';
 	}
+
+	preorder_traversal(m._root);
 }
