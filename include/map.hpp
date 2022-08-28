@@ -99,6 +99,9 @@ private:
 				parent->_right = root;
 			} else if (parent->_val.first != val.first) {
 				parent->_left = root;
+			} else {
+				_node_alloc.deallocate(root, sizeof(node));
+				root = parent;
 			}
 			return root;
 		}
@@ -107,21 +110,23 @@ private:
 		} else if (root->_val.first != val.first) { //root->_val.first > val.first
 			return append_node(root->_left, root, val);
 		}
-		return root;
+		return NULL;
 	}
 
 	node_pointer	search_node(const key_type& k, node_pointer root) const {
-		if (!root || k == root->_val.first)
+		if (!root || root->_val.first == k)
 			return root;
-		node_pointer ret = search_node(k, root->_left);
-		if (ret && ret->_val.first == k) {
-			return ret;
+		node_pointer	ret = NULL;
+		if (_key_comp(root->_val.first, k)) {
+			ret = search_node(k, root->_right);
+			if (!ret)
+				return ret;
+		} else if (root->_val.first != k) {
+			ret = search_node(k, root->_left);
+			if (!ret)
+				return ret;
 		}
-		ret = search_node(k, root->_right);
-		if (ret && ret->_val.first == k) {
-			return ret;
-		}
-		return NULL;
+		return ret;
 	}
 
 	e_node_child_state	node_child_cnt(node_pointer p) {
@@ -173,49 +178,39 @@ private:
 	}
 
 	void	delete_two_child_node(node_pointer p) {
-		// std::cout << "Two\n";
 		node_pointer	min_left = p->_right;
-		// node_pointer	min_left_right;
+		// std::cout << "target: " << p->_val.first << '\n';
 
 		while (min_left->_left) {
 			min_left = min_left->_left;
 		}
-		// std::cout << "min_left: " << min_left->_val.first << '\n';
+
 		if (min_left != p->_right) {
 			min_left->_parent->_left = min_left->_right;
-			if (min_left->_parent->_left) {
+			if (min_left->_right)
 				min_left->_right->_parent = min_left->_parent;
-			}
 			min_left->_right = p->_right;
 			min_left->_right->_parent = min_left;
 		}
-		// std::cout << "jhere\n";
 		min_left->_left = p->_left;
 		min_left->_left->_parent = min_left;
-		// min_left->_parent->_left = min_left->_right;
-		// if (min_left->_right)
-			// min_left->_right->_parent = min_left->_parent;
 
-
-
-		// if (min_left_right) {
-		// 	min_left_right->_parent = min_left->_parent;
-		// 	min_left->_parent->_left = min_left_right;
-		// }
 		if (p->_parent->_left == p) {
 			min_left->_parent = p->_parent;
-			p->_parent->_left = min_left;
+			min_left->_parent->_left = min_left;
 		} else {
 			min_left->_parent = p->_parent;
-			p->_parent->_right = min_left;
+			min_left->_parent->_right = min_left;
 		}
 		if (p == _root) {
 			_root = min_left;
 		}
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
+
+		// std::cout << "-------\n";
 		// preorder_traversal(_root);
-		// std::cout << _root->_val.first << '\n';
+		// std::cout << "-------\n";
 	}
 
 	bool	delete_node(const key_type& k) {
@@ -264,11 +259,14 @@ private:
 
 	e_rotate_state	check_rotate_state(node_pointer target) {
 		ssize_t balanced_factor = get_balanced_factor(target);
-		if (balanced_factor > 1 && get_balanced_factor(target->_left) > 0)
+
+		// std::cout << "bf: " << balanced_factor << '\n';
+
+		if (balanced_factor > 1 && get_balanced_factor(target->_left) >= 0)
 			return (LL);
 		else if (balanced_factor > 1 && get_balanced_factor(target->_left) < 0)
 			return (LR);
-		else if (balanced_factor < -1 && get_balanced_factor(target->_right) < 0)
+		else if (balanced_factor < -1 && get_balanced_factor(target->_right) <= 0)
 			return (RR);
 		return (RL);
 	}
@@ -315,6 +313,7 @@ private:
 
 	bool	rotate_tree(node_pointer root) {
 		node_pointer	target = check_balanced_factor(root, NULL);
+
 		
 		if (!target)
 			return false;
@@ -457,12 +456,13 @@ public:
 	}
 
 	mapped_type& operator[] (const key_type& k) {
-		node_pointer searched = search_node(k, _root);
+		node_pointer	searched = search_node(k, _root);
+		value_type		value = ft::make_pair(k, mapped_type());
 
 		if (searched) {
 			return searched->_val.second;
 		}
-		pair<iterator, bool> insert_ret = insert(ft::make_pair<key_type, mapped_type>(k, mapped_type()));
+		pair<iterator, bool> insert_ret = insert(value);
 		return insert_ret.first->second;
 	}
 
@@ -476,8 +476,11 @@ public:
 
 	pair<iterator,bool> insert (const value_type& val) {
 		node_pointer	ret;
-		bool			inserted = false;
-		
+
+		ret = search_node(val.first, _root);
+		if (ret) {
+			return ft::make_pair<iterator, bool>(iterator(ret), false);
+		}		
 		if (!_root) {
 			_root = make_node(val);
 			_super_node->_left = _root;
@@ -487,14 +490,8 @@ public:
 			ret = append_node(_root, _root->_parent, val);
 			rotate_tree(_root);
 		}
-		if (ret->_val.first == val.first && ret->_val.second == val.second) {
-			++_size;
-			inserted = true;
-		}
-		// if (_key_comp(_super_node->_val.first, begin()->first)) {
-			// _super_node->_val.first = 
-		// }
-		return ft::make_pair<iterator, bool>(iterator(ret), inserted);
+		++_size;
+		return ft::make_pair<iterator, bool>(iterator(ret), true);
 	}
 
 	iterator insert (iterator position, const value_type& val) {
@@ -649,7 +646,7 @@ bool operator== ( const map<Key,T,Compare,Alloc>& lhs,
 	if (lhs.size() != rhs.size()) {
 		return false;
 	}
-	return equal(lhs.begin(), lhs.end(), rhs.begin());
+	return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
 template <class Key, class T, class Compare, class Alloc>
@@ -661,7 +658,7 @@ bool operator!= ( const map<Key,T,Compare,Alloc>& lhs,
 template <class Key, class T, class Compare, class Alloc>
 bool operator<  ( const map<Key,T,Compare,Alloc>& lhs,
                     const map<Key,T,Compare,Alloc>& rhs ) {
-	return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), Compare());
+	return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
 
 template <class Key, class T, class Compare, class Alloc>
