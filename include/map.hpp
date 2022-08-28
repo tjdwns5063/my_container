@@ -545,10 +545,13 @@ public:
 	}
 
 	void swap (map& x) {
-		map<key_type, mapped_type> temp(x);
+		node_pointer	temp_root = x._root;
+		size_type		temp_size = x._size;
 
-		x = *this;
-		*this = temp;
+		x._root = this->_root;
+		x._size = this->_size;
+		this->_root = temp_root;
+		this->_size = temp_size;
 	}
 
 	void clear() {
