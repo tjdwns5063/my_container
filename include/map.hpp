@@ -95,18 +95,17 @@ private:
 		if (!root) {
 			root = make_node(val);
 			root->_parent = parent;
-			if (parent->_val.first < val.first) {
+			if (_key_comp(parent->_val.first, val.first)) { //parent->_val.first < val.first
 				parent->_right = root;
-			} else {
+			} else if (parent->_val.first != val.first) {
 				parent->_left = root;
 			}
 			return root;
 		}
-		if (root->_val.first > val.first) {
-			return append_node(root->_left, root, val);
-		}
-		else if (root->_val.first < val.first) {
+		if (_key_comp(root->_val.first, val.first)) { //root->_val.first < val.first
 			return append_node(root->_right, root, val);
+		} else if (root->_val.first != val.first) { //root->_val.first > val.first
+			return append_node(root->_left, root, val);
 		}
 		return root;
 	}
@@ -583,7 +582,7 @@ public:
 	}
 
 	size_type count (const key_type& k) const {
-		iterator found_iter = find(k);
+		const_iterator found_iter = find(k);
 
 		if (found_iter == end()) {
 			return 0;
@@ -659,7 +658,7 @@ bool operator!= ( const map<Key,T,Compare,Alloc>& lhs,
 template <class Key, class T, class Compare, class Alloc>
 bool operator<  ( const map<Key,T,Compare,Alloc>& lhs,
                     const map<Key,T,Compare,Alloc>& rhs ) {
-	return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin());
+	return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), Compare());
 }
 
 template <class Key, class T, class Compare, class Alloc>
