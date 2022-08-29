@@ -4,10 +4,10 @@
 #include "vector.hpp"
 #include "stack.hpp"
 #include <vector>
-#include <algorithm>
-#include <map>
-#include <stack>
-#include <utility>
+// #include <algorithm>
+// #include <map>
+// #include <stack>
+// #include <utility>
 
 template <typename T, typename ft::enable_if<ft::is_integral<T>::value, T>::type>
 void    intFunc(T num) {
@@ -24,30 +24,22 @@ void    print_vec(T& vec) {
 }
 
 int main(void) {
-    std::stack<int> s;
-    ft::stack<int>  ms;
+    std::vector<int> s;
+    ft::vector<int>  ms;
 
     // ft::vector<int> v;
-    s.push(1);
-    ms.push(1);
-    std::cout << s.size() << '\n';
-    std::cout << ms.size() << '\n';
-    std::cout << s.empty() << '\n';
-    std::cout << ms.empty() << '\n';
-    s.push(2);
-    ms.push(2);
-    std::cout << s.top() << '\n';
-    std::cout << ms.top() << '\n';
-    s.pop();
-    ms.pop();
-    std::cout << s.top() << '\n';
-    std::cout << ms.top() << '\n';
-    std::cout << s.size() << '\n';
-    std::cout << ms.size() << '\n';
-    s.pop();
-    ms.pop();
-    std::cout << s.size() << '\n';
-    std::cout << ms.size() << '\n';
-    std::cout << s.empty() << '\n';
-    std::cout << ms.empty() << '\n';
+
+    for (int i = 0; i < 5; ++i) {
+        s.push_back(i + 1);
+        ms.push_back(i + 1);
+    }
+    auto it = s.begin();
+    auto it2 = ms.begin();
+
+    std::cout << "it: " << *it << '\n';
+    std::cout << "it2: " << *it2 << '\n';
+    *(it.base()) = 3;
+    *(it2.base()) = 3;
+    std::cout << "it: " << *it << '\n';
+    std::cout << "it2: " << *it2 << '\n';
 }
