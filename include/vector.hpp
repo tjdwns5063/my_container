@@ -2,7 +2,6 @@
 # define VECTOR_HPP
 
 #include <memory>
-#include <iostream>
 #include "iterator.hpp"
 #include "enable_if.hpp"
 #include "is_integral.hpp"
@@ -27,33 +26,32 @@ namespace ft {
 			typedef ft::reverse_iterator<iterator>								reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator>						const_reverse_iterator;
 		private:
-			iterator		_begin;
-			// iterator		_end;
+			pointer			_begin;
+			pointer			_end;
 			allocator_type	_alloc;
 			size_type		_capacity;
 			size_type		_size;
 
-			void	_copy_value(iterator& t_begin, size_type capacity) {
-				iterator	temp;
+			void	_copy_value(pointer start, pointer end, pointer dest) {
+				difference_type len = end - start;
 
-				if (_begin == end())
-					return ;
-				temp = t_begin;
-				for (iterator it = _begin; it != end(); it++)
-					*(temp++) = *it;
-				_alloc.deallocate(_begin.base(), capacity);
+				for (difference_type i = 0; i < len; ++i) {
+					*(dest + i) = *(start + i);
+				}
 			}
 
 			void	_allocate(size_type n) {
-				iterator	t_begin;
+				pointer	t_begin = 0;
 				size_type	capacity = _capacity;
 				if (_capacity >= n)
 					return ;
 				_capacity = n;
 				try {
-					t_begin = iterator(_alloc.allocate(_capacity));
-					_copy_value(t_begin, capacity);
+					t_begin = _alloc.allocate(_capacity);
+					_copy_value(_begin, _end, t_begin);
+					_alloc.deallocate(_begin, capacity);
 					_begin = t_begin;
+					_end = _begin + _size;
 				} catch (std::bad_alloc& err) {
 					// std::cout << "allocate_error\n";
 				}
@@ -64,31 +62,31 @@ namespace ft {
 				x._capacity = y._capacity;
 				x._size = y._size;
 				x._begin = y._begin;
-				// x._end = y._end;
+				x._end = y._end;
 			}
 
 		public:	
 		//Constructor, Destructor, Assign operator
 			explicit vector (const allocator_type& alloc = allocator_type())
-				: _begin(iterator(0)), _alloc(alloc), _capacity(0), _size(0) {}
+				: _begin(NULL), _end(NULL), _alloc(alloc), _capacity(0), _size(0) {}
 
 			explicit vector (size_type n, const value_type& val = value_type(),
-                 const allocator_type& alloc = allocator_type()): _begin(iterator(0)), _alloc(alloc), _capacity(0), _size(0) {
+                 const allocator_type& alloc = allocator_type()): _begin(NULL), _end(NULL), _alloc(alloc), _capacity(0), _size(0) {
 					assign(n, val);
 				 }
 
 			template <typename InputIterator>
 				vector (typename enable_if<!is_integral<InputIterator>::value, InputIterator >::type first, InputIterator last, 
-					const allocator_type& alloc = allocator_type()): _begin(iterator(0)), _alloc(alloc), _capacity(0), _size(0) {
+					const allocator_type& alloc = allocator_type()): _begin(NULL), _end(NULL), _alloc(alloc), _capacity(0), _size(0) {
 					assign(first, last);
 				 }
 
-			vector (const vector& x): _begin(iterator(0)), _alloc(allocator_type()), _capacity(0), _size(0) {
+			vector (const vector& x): _begin(), _end(), _alloc(allocator_type()), _capacity(0), _size(0) {
 				*this = x;
 			}
 
 			~vector() {
-				_alloc.deallocate(_begin.base(), _capacity);
+				// _alloc.deallocate(_begin, _capacity);
 				// _alloc.destroy(_begin.base());
 				// std::cout << "destruct call\n";
 				// system("leaks a.out");
@@ -101,22 +99,26 @@ namespace ft {
 
 			//Iterator		
 			iterator begin() {
-				return (_begin);
+				return (iterator(_begin));
 			}
 			const_iterator begin() const {
-				return (static_cast<const_iterator>(_begin));
+				return (const_iterator(_begin));
 			}
 
 			iterator end() {
-				return (_begin + _size);
+				return (iterator(_end));
+			}
+
+			const_iterator end() const {
+				return (const_iterator(_end));
 			}
 
 			reverse_iterator rbegin() {
-				return (reverse_iterator(_begin + _size));
+				return (reverse_iterator(_end));
 			}
 
 			const_reverse_iterator	rbegin() const {
-				return (const_reverse_iterator(_begin + _size));
+				return (const_reverse_iterator(_end));
 			}
 
 			reverse_iterator rend() {
@@ -127,9 +129,6 @@ namespace ft {
 				return (const_reverse_iterator(_begin));
 			}
 
-			const_iterator end() const {
-				return (static_cast<const_iterator>(_begin + _size));
-			}
 		//Capacity
 			size_type	capacity(void) const {
 				return (_capacity);
@@ -140,19 +139,38 @@ namespace ft {
 			}
 
 			void	resize(size_type n, value_type val = value_type()) {
+				// if (n < _size) {
+				// 	std::cout << "1\n";
+				// 	_size = n;
+				// }
+				// else if (n > _size && n <= _capacity) {
+				// 	std::cout << "2\n";
+				// 	for (pointer ptr = _end; ptr != _begin + n; ++ptr)
+				// 		*ptr = val;
+				// 	_size = n;
+				// }
+				// else if (n > _capacity) {
+				// 	std::cout << "3\n";
+				// 	_allocate(_capacity * 2);
+				// 	for (pointer ptr = _end; ptr != _begin + n; ++ptr)
+				// 		*ptr = val;
+				// 	_size = n;
+				// }
 				if (n < _size) {
 					_size = n;
-				}
-				else if (n > _size && n <= _capacity) {
-					for (iterator it = end(); it < _begin + n; it++)
-						*it = val;
+					_end = _begin + _size;
+				} else if (n < _capacity) {
+					for (size_type i = _end - _begin; i < n; ++i)
+						*(_begin + i) = val;
 					_size = n;
-				}
-				else if (n > _capacity) {
-					_allocate(_capacity * 2);
-					for (iterator it = end(); it < _begin + n; it++)
-						*it = val;
+					_end = _begin + _size;
+				} else {
+					size_type capacity = (n > _capacity * 2) ? n : _capacity * 2;
+					_allocate(capacity);
+					for (size_type i = _end - _begin; i < n; ++i)
+						*(_begin + i) = val;
 					_size = n;
+					_end = _begin + _size;
 				}
 			}
 
@@ -206,24 +224,28 @@ namespace ft {
 				_allocate(count);
 				for (size_type i = 0; i < _capacity; i++) {
 					if (i < count)
-						_begin[i] = value;
+						*(_begin + i) = value;
 					else
-						_begin[i] = (value_type)0;
+						*(_begin + i) = (value_type)0;
 				}
 				_size = count;
+				_end = _begin + _size;
 			}
 
 			template <typename InputIt>
 			void assign( typename enable_if<!is_integral<InputIt>::value, InputIt >::type first, InputIt last ) {
-				difference_type	size = last - first;
-
-				// std::cout << size << '\n';
+				difference_type	size = 0;
+				
+				for (InputIt it = first; it != last; ++it) {
+					++size;
+				}
 				_allocate(size);
 				_size = size;
 				size = 0;
 				for (InputIt it = first; it != last; it++) {
-					_begin[size++] = *it;
+					*(_begin + size++) = *it;
 				}
+				_end = _begin + _size;
 			}
 
 			void push_back( const value_type& val ) {
@@ -231,73 +253,121 @@ namespace ft {
 					size_t capacity = (_capacity == 0) ? 1 : _capacity * 2;
 					_allocate(capacity);
 				}
-				*end() = val;
-				// _end += 1;
+				*(_begin + _size) = val;
 				_size += 1;
+				_end = _begin + _size;
 			}
 
 			void pop_back() {
 				_size -= 1;
-				// _end[_size] = 0;
-				// _end -= 1;
+				_end = _begin + _size;
 			}
 
 			iterator insert (iterator position, const value_type& val) {
-				difference_type offset = position - _begin;
-				if (_size == 0) {
-					_allocate(_size + 1);
-					*_begin = val;
-					_size += 1;
-					return (_begin);
+				difference_type offset = position.base() - _begin;
+
+				// std::cout << "offset : " << offset << '\n';
+				if (_begin + offset == _end) {
+					push_back(val);
+				} else {
+					if (_size + 1 >= _capacity) {
+						size_t capacity = (_capacity == 0) ? 1 : _capacity * 2;
+						_allocate(capacity);
+					}
+					difference_type temp_size = _size - offset;
+					pointer temp = _alloc.allocate(temp_size);
+
+					_copy_value(_begin + offset, _end, temp);
+					*(_begin + offset) = val;
+					_copy_value(temp, temp + (temp_size), _begin + offset + 1);
+					_alloc.deallocate(temp, temp_size);
+					++_size;
+					_end = _begin + _size;
 				}
-				_allocate(_size + 1);
-				for (iterator it = end(); it != _begin + offset; --it) {
-					*it = *(it - 1);
-					// std::cout << "*it : " << *it << '\n';
-				}
-				*(_begin + offset) = val;
-				_size += 1;
-				return (_begin + offset);
+				return (iterator(_begin + offset));
 			}
 
 			void insert (iterator position, size_type n, const value_type& val) {
-				size_type	offset;
+				difference_type offset = position.base() - _begin;
 
-				offset = position - _begin;
+				if (n <= 0)
+					return ;
 				_allocate(_size + n);
-				for (iterator it = end() + n; it != _begin + offset; it--) {
-					*it = *(it - n);
-				}
-				for (iterator it = _begin + offset; it != _begin + offset + n; it++) {
-					*it = val;
+				if (_begin + offset == _end) {
+					for (size_type i = 0; i < n; ++i) {
+						*(_begin + offset + i) = val;
+					}
+				} else {
+					difference_type temp_size = _size - offset;
+					pointer temp_ptr = _alloc.allocate(temp_size);
+					_copy_value(_begin + offset, _begin + _size, temp_ptr);
+					for (size_type i = 0; i < n; ++i) {
+						*(_begin + offset + i) = val;
+					}
+					_copy_value(temp_ptr, temp_ptr + temp_size, _begin + offset + n);
 				}
 				_size += n;
+				_end = _begin + _size;
 			}
 
 			template< typename InputIt>
     		void insert( iterator position, typename enable_if<!is_integral<InputIt>::value, InputIt >::type first, InputIt last ) {
 				size_type	offset;
-				size_type	len;
+				difference_type	len;
 				iterator	pos;
-
-				offset = position - _begin;
+				
+				offset = position.base() - _begin;
 				len = 0;
 				for (InputIt it = first; it != last; it++)
 					++len;
-				_allocate(_size + len);
-				for (iterator it = end() + len; it != _begin + offset; it--)
-					*it = *(it - len);
-				pos = _begin + offset;
-				for (InputIt it = first; it != last; it++)
-					*(pos++) = *it;
+				if (_size + len >= _capacity) {
+					size_t capacity = (len + _size > _capacity * 2) ? len + _size : _capacity * 2;//std::max(len, _capacity * 2);
+					_allocate(capacity);
+				}
+				if (_begin + offset == _end) {
+					for (difference_type i = 0; i < len; ++i) {
+						*(_begin + offset + i) = *first++;
+					}
+				} else {
+					difference_type temp_size = _size - offset;
+					pointer temp_ptr = _alloc.allocate(temp_size);
+					_copy_value(_begin + offset, _begin + _size, temp_ptr);
+					for (difference_type i = 0; i < len; ++i) {
+						*(_begin + offset + i) = *first++;
+					}
+					_copy_value(temp_ptr, temp_ptr + temp_size, _begin + offset + len);
+				}
+				// for (iterator it = end() + len; it != begin() + offset; it--)
+				// 	*it = *(it - len);
+				// pos = _begin + offset;
+				// for (InputIt it = first; it != last; it++)
+				// 	*(pos++) = *it;
 				_size += len;
+				_end = _begin + _size;
 			}
+			// template <class _Tp, class _Allocator>
+			// inline _LIBCPP_INLINE_VISIBILITY
+			// void
+			// __vector_base<_Tp, _Allocator>::__destruct_at_end(pointer __new_last) _NOEXCEPT
+			// {
+			// 	pointer __soon_to_be_end = __end_;
+			// 	while (__new_last != __soon_to_be_end)
+			// 		__alloc_traits::destroy(__alloc(), _VSTD::__to_address(--__soon_to_be_end));
+			// 	__end_ = __new_last;
+			// }
+
 
 			iterator erase (iterator position) {
-				for (iterator it = position; it != end(); it++)
-					*it = *(it + 1);
+				difference_type	pos = position - begin();
+
+				pointer p = _begin + pos;
+				_alloc.destroy(p);
+
+				for (difference_type i = 0; i < _end - (p + 1); ++i)
+					*(p + i) = *(p + 1 + i);
 				_size -= 1;
-				return (position);
+				_end = _begin + _size;
+				return (iterator(p));
 			}
 
 			iterator erase (iterator first, iterator last) {
@@ -321,8 +391,8 @@ namespace ft {
 			}
 
 			void clear() {
-				end() = _begin;
 				_size = 0;
+				_end = _begin + _size;
 			}
 		// Allocator
 			allocator_type get_allocator() const {

@@ -68,6 +68,15 @@ private:
 	key_compare									_key_comp;
 	size_type									_size;
 	node_pointer								_super_node;
+	node_pointer								_root;
+
+	void	preorder_traversal(node_pointer root) {
+		if (!root)
+			return ;
+		std::cout << root->_val.first << " " << root->_val.second << '\n';
+		preorder_traversal(root->_left);
+		preorder_traversal(root->_right);
+	}
 
 	node_pointer	make_node(value_type val) {
 		node_pointer ret = _node_alloc.allocate(sizeof(node));
@@ -343,8 +352,6 @@ private:
 	}
 
 public:
-	node_pointer	_root;
-
 	explicit map (const key_compare& comp = key_compare(),
               const allocator_type& alloc = allocator_type())
 			  : _alloc(alloc), _key_comp(comp), _size(0), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {}
@@ -381,14 +388,6 @@ public:
 			insert(x.begin(), x.end());
 		}
 		return (*this);
-	}
-
-	void	preorder_traversal(node_pointer root) {
-		if (!root)
-			return ;
-		std::cout << root->_val.first << " " << root->_val.second << '\n';
-		preorder_traversal(root->_left);
-		preorder_traversal(root->_right);
 	}
 
 	iterator begin() {

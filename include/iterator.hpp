@@ -198,7 +198,7 @@ namespace ft {
 	private:
 		pointer	_p;
 	public:
-		vector_iterator(): _p() {}
+		vector_iterator(): _p(NULL) {}
 		vector_iterator(pointer p): _p(p) {}
 		~vector_iterator() {}
 
@@ -208,7 +208,7 @@ namespace ft {
         vector_iterator& operator=(const vector_iterator<_Up>& p)
             { _p = p.base(); return *this; }
 
-		const pointer	base() const {
+		pointer	base() const {
 			return (_p);
 		}
 
@@ -267,48 +267,6 @@ namespace ft {
 		reference	operator[](difference_type idx) const {
 			return (*(_p + idx));
 		}
-
-		// template <typename It1>
-		// friend const vector_iterator<It1>	operator+(difference_type size, const vector_iterator<It1>& vit) {
-		// 	vector_iterator<It1> temp(vit);
-		// 	temp += size;
-		// 	return (temp);
-		// }
-
-		// template <typename It1, typename It2>
-		// friend const difference_type	operator-(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
-		// 	return (vit1._p - vit2._p);
-		// }
-
-		// template <typename It1, typename It2>
-		// friend bool	operator==(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
-		// 	return (vit1._p == vit2._p);	
-		// }
-
-		// template <typename It1, typename It2>
-		// friend bool	operator!=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
-		// 	return (!(vit1 == vit2));	
-		// }
-
-		// template <typename It1, typename It2>
-		// friend bool	operator>(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
-		// 	return (vit1 - vit2 > 0);	
-		// }
-
-		// template <typename It1, typename It2>
-		// friend bool	operator<(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
-		// 	return (vit1 - vit2 < 0);	
-		// }
-
-		// template <typename It1, typename It2>
-		// friend bool	operator>=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
-		// 	return !(vit1 < vit2);
-		// }
-
-		// template <typename It1, typename It2>
-		// friend bool	operator<=(const vector_iterator<It1>& vit1, const vector_iterator<It2>& vit2) {
-		// 	return !(vit1 > vit2);
-		// }
 	};
 		template <typename It1>
 		vector_iterator<It1>	operator+(ptrdiff_t size, const vector_iterator<It1>& vit) {
