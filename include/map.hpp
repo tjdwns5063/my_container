@@ -2,6 +2,7 @@
 # define MAP_HPP
 
 #include <algorithm>
+#include "vector.hpp"
 #include "comp_algorithm.hpp"
 #include "map_iterator.hpp"
 
@@ -79,7 +80,7 @@ private:
 	}
 
 	node_pointer	make_node(value_type val) {
-		node_pointer ret = _node_alloc.allocate(sizeof(node));
+		node_pointer ret = _node_alloc.allocate(1);
 
 		_node_alloc.construct(ret, Node<value_type>(val));
 		return (ret);
@@ -100,42 +101,84 @@ private:
 		clear_map(right);
 	}
 
-	node_pointer	append_node(node_pointer root, node_pointer parent, const value_type& val) {
+	node_pointer	append_node_recursive(node_pointer root, node_pointer parent, const value_type& val) {
 		if (!root) {
-			root = make_node(val);
-			root->_parent = parent;
 			if (_key_comp(parent->_val.first, val.first)) { //parent->_val.first < val.first
+				root = make_node(val);
+				root->_parent = parent;
 				parent->_right = root;
 			} else if (parent->_val.first != val.first) {
+				root = make_node(val);
+				root->_parent = parent;
 				parent->_left = root;
-			} else {
-				_node_alloc.deallocate(root, sizeof(node));
-				root = parent;
 			}
 			return root;
 		}
 		if (_key_comp(root->_val.first, val.first)) { //root->_val.first < val.first
-			return append_node(root->_right, root, val);
+			return append_node_recursive(root->_right, root, val);
 		} else if (root->_val.first != val.first) { //root->_val.first > val.first
-			return append_node(root->_left, root, val);
+			return append_node_recursive(root->_left, root, val);
 		}
 		return NULL;
 	}
 
-	node_pointer	search_node(const key_type& k, node_pointer root) const {
+	node_pointer append_node_iterate(const value_type& val) {
+		node_pointer curr_root = _root;
+		node_pointer parent = _root->_parent;
+
+		while (curr_root) {
+			if (_key_comp(curr_root->_val.first, val.first)) {
+				parent = curr_root;
+				curr_root = curr_root->_right;
+			}
+			else if (curr_root->_val.first != val.first) {
+				parent = curr_root;
+				curr_root = curr_root->_left;
+			}
+			else {
+				return (curr_root);
+			}
+		}
+		curr_root = make_node(val);
+		curr_root->_parent = parent;
+		if (_key_comp(curr_root->_parent->_val.first, val.first)) {
+			curr_root->_parent->_right = curr_root;
+		} else {
+			curr_root->_parent->_left = curr_root;
+		}
+		return (curr_root);
+	}
+
+	node_pointer	search_node_recursive(const key_type& k, node_pointer root) const {
 		if (!root || root->_val.first == k)
 			return root;
 		node_pointer	ret = NULL;
 		if (_key_comp(root->_val.first, k)) {
-			ret = search_node(k, root->_right);
+			ret = search_node_recursive(k, root->_right);
 			if (!ret)
 				return ret;
 		} else if (root->_val.first != k) {
-			ret = search_node(k, root->_left);
+			ret = search_node_recursive(k, root->_left);
 			if (!ret)
 				return ret;
 		}
 		return ret;
+	}
+
+	node_pointer	search_node_iterate(const key_type& k) const {
+		node_pointer	curr_root = _root;
+
+		while (curr_root) {
+			if (curr_root->_val.first == k) {
+				return (curr_root);
+			}
+			if (_key_comp(curr_root->_val.first, k)) {
+				curr_root = curr_root->_right;
+			} else if (curr_root->_val.first != k) {
+				curr_root = curr_root->_left;
+			}
+		}
+		return (NULL);
 	}
 
 	e_node_child_state	node_child_cnt(node_pointer p) {
@@ -216,14 +259,10 @@ private:
 		}
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
-
-		// std::cout << "-------\n";
-		// preorder_traversal(_root);
-		// std::cout << "-------\n";
 	}
 
 	bool	delete_node(const key_type& k) {
-		node_pointer searched_node = search_node(k, _root);
+		node_pointer searched_node = search_node_iterate(k);
 
 		if (!searched_node)
 			return false;
@@ -241,28 +280,51 @@ private:
 		return true;
 	}
 
-	ssize_t	get_node_height(node_pointer ptr) {
-		if (!ptr)
+	// ssize_t	get_node_height(node_pointer ptr) {
+	// 	if (!ptr)
+	// 		return (0);
+	// 	return 1 + std::max(get_node_height(ptr->_left), get_node_height(ptr->_right));
+	// }
+
+	ssize_t		get_node_height(node_pointer node) {
+		if (!node)
 			return (0);
-		return 1 + std::max(get_node_height(ptr->_left), get_node_height(ptr->_right));
+		return (1 + std::max(get_node_height(node->_left), get_node_height(node->_right)));
 	}
 
 	ssize_t	get_balanced_factor(node_pointer ptr) {
-		if (!ptr)
-			return (0);
 		return get_node_height(ptr->_left) - get_node_height(ptr->_right);
 	}
 
-	node_pointer	check_balanced_factor(node_pointer root, node_pointer target) {
-		ssize_t balanced_factor = get_balanced_factor(root);
+	// node_pointer	check_balanced_factor(node_pointer root, node_pointer target) {
+	// 	ssize_t balanced_factor = get_balanced_factor(root);
 
-		if (!root) {
-			return target;
-		} else if (abs(balanced_factor) > 1) {
-			target = root;
+	// 	if (!root) {
+	// 		return target;
+	// 	} else if (abs(balanced_factor) > 1) {
+	// 		target = root;
+	// 	}
+	// 	target = check_balanced_factor(root->_left, target);
+	// 	target = check_balanced_factor(root->_right, target);
+	// 	return target;
+	// }
+
+	node_pointer	check_balanced_factor(const key_type& k) {
+		node_pointer	curr_root = _root;
+		node_pointer	target = NULL;
+		ssize_t			balanced_factor = 0;
+
+		while (curr_root && curr_root->_val.first != k) {
+			balanced_factor = get_balanced_factor(curr_root);
+			if (abs(balanced_factor) > 1) {
+				target = curr_root;
+			}
+			if (_key_comp(curr_root->_val.first, k)) {
+				curr_root = curr_root->_right;
+			} else if (curr_root->_val.first != k) {
+				curr_root = curr_root->_left;
+			}
 		}
-		target = check_balanced_factor(root->_left, target);
-		target = check_balanced_factor(root->_right, target);
 		return target;
 	}
 
@@ -320,12 +382,12 @@ private:
 		}
 	}
 
-	bool	rotate_tree(node_pointer root) {
-		node_pointer	target = check_balanced_factor(root, NULL);
+	bool	rotate_tree(const key_type& k) {
+		node_pointer	target = check_balanced_factor(k);
 
-		
-		if (!target)
+		if (!target) {
 			return false;
+		}
 		// std::cout << "root: " << root->_val.first << '\n';
 		// std::cout << "target: " << target->_val.first << '\n';
 		switch (check_rotate_state(target)) {
@@ -369,7 +431,7 @@ public:
 		insert(x.begin(), x.end());
 	}
 
-	~map() { /*clear();*/ };
+	~map() { clear(); }
 
 
 	map& operator= (const map& x) {
@@ -455,7 +517,7 @@ public:
 	}
 
 	mapped_type& operator[] (const key_type& k) {
-		node_pointer	searched = search_node(k, _root);
+		node_pointer	searched = search_node_iterate(k);
 		value_type		value = ft::make_pair(k, mapped_type());
 
 		if (searched) {
@@ -476,18 +538,18 @@ public:
 	pair<iterator,bool> insert (const value_type& val) {
 		node_pointer	ret;
 
-		ret = search_node(val.first, _root);
-		if (ret) {
+		if ((ret = search_node_iterate(val.first))) {
 			return ft::make_pair<iterator, bool>(iterator(ret), false);
-		}		
+		}
 		if (!_root) {
 			_root = make_node(val);
 			_super_node->_left = _root;
 			_root->_parent = _super_node;
 			ret = _root;
 		} else {
-			ret = append_node(_root, _root->_parent, val);
-			rotate_tree(_root);
+			// ret = append_node(_root, _root->_parent, val);
+			ret = append_node_iterate(val);
+			rotate_tree(val.first);
 		}
 		++_size;
 		return ft::make_pair<iterator, bool>(iterator(ret), true);
@@ -516,7 +578,7 @@ public:
 	size_type erase (const key_type& k) {
 		if (delete_node(k)) {
 			--_size;
-			rotate_tree(_root);
+			rotate_tree(k);
 			// preorder_traversal(_root);
 			return 1;
 		}
@@ -527,16 +589,9 @@ public:
 	void erase (iterator first, iterator last) {
 		iterator	prev;
 		while (first != last) {
-			// if (_super_node == first._p) {
-			// 	std::cout << "equals ";
-			// }
-			// std::cout << first->first <<  " " << first->second << '\n';
-			// std::cout << "-----------------------\n";
 			prev = first;
 			++first;
 			erase(prev);
-			// preorder_traversal(_root);
-			// std::cout << "-----------------------\n";
 		}
 	}
 
@@ -567,14 +622,14 @@ public:
 	}
 
 	iterator find (const key_type& k) {
-		node_pointer ptr = search_node(k, _root);
+		node_pointer ptr = search_node_iterate(k);
 		if (!ptr)
 			return end();
 		return iterator(ptr);
 	}
 
 	const_iterator find (const key_type& k) const {
-		node_pointer ptr = search_node(k, _root);
+		node_pointer ptr = search_node_iterate(k);
 		if (!ptr)
 			return end();
 		return iterator(ptr);
