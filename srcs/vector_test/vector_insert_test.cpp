@@ -1,5 +1,37 @@
 #include "vector_test.hpp"
 
+template <typename VEC, typename A1, typename A2>
+void    vector_insert_execute(VEC& vec, A1 arg1, A2 arg2) {
+    struct timeval start;
+    struct timeval end;
+    long    micro_sec;
+    std::string vec_type;
+
+    vec_type = (typeid(vec).name() == typeid(std::vector<typename VEC::value_type>).name()) ? "STD" : "FT";
+    std::cout << "[ " << vec_type  << " ]\n";
+    gettimeofday(&start, NULL);
+    vec.insert(arg1, arg2);
+    gettimeofday(&end, NULL);
+    micro_sec = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+    std::cout << "micro sec: " << micro_sec << "us\n";
+}
+
+template <typename VEC, typename A1, typename A2, typename A3>
+void    vector_insert_execute(VEC& vec, A1 arg1, A2 arg2, A3 arg3) {
+    struct timeval start;
+    struct timeval end;
+    long    micro_sec;
+    std::string vec_type;
+
+    vec_type = (typeid(vec).name() == typeid(std::vector<typename VEC::value_type>).name()) ? "STD" : "FT";
+    std::cout << "[ " << vec_type  << " ]\n";
+    gettimeofday(&start, NULL);
+    vec.insert(arg1, arg2, arg3);
+    gettimeofday(&end, NULL);
+    micro_sec = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+    std::cout << "micro sec: " << micro_sec << "us\n";
+}
+
 void    vector_insert_single_elem_test(void) {
     std::cout << "--------------------vector_insert_single_elem_test-------------------------\n";
     std::vector<int> s_v;
@@ -42,6 +74,10 @@ void    vector_insert_single_elem_test(void) {
     print_vec(m_v);
     std::cout << "*s_it: " << *s_it << '\n';
     std::cout << "*m_it: " << *m_it << '\n';
+
+    std::cout << "------vector_single_item_insert_performance_test-------\n";
+    vector_insert_execute(s_v, s_v.begin() + 1, 3);
+    vector_insert_execute(m_v, m_v.begin() + 1, 3);
 }
 
 void    vector_insert_fill_test(void) {
@@ -65,7 +101,9 @@ void    vector_insert_fill_test(void) {
     m_v.insert(m_v.begin() + 4, 1, 5);
     print_vec(s_v);
     print_vec(m_v);
-    std::cout << "-----------------------------\n";
+    std::cout << "------vector_fill_insert_performance_test-------\n";
+    vector_insert_execute(s_v, s_v.end(), 1000, 3);
+    vector_insert_execute(m_v, m_v.end(), 1000, 3);
 }
 
 void    vector_insert_range_test(void) {
@@ -97,7 +135,17 @@ void    vector_insert_range_test(void) {
     m_v.insert(m_v.begin() + 5, origin_m_v.end() - 4, origin_m_v.end());
     print_vec(s_v);
     print_vec(m_v);
-    std::cout << "-----------------------------\n";
+
+    std::vector<int> s_origin;
+    ft::vector<int> m_origin;
+
+    for (int i = 0; i < 100; ++i) {
+        s_origin.push_back(i + 1);
+        m_origin.push_back(i + 1);
+    }
+    std::cout << "------vector_range_insert_performance_test-------\n";
+    vector_insert_execute(s_v, s_v.end(), s_origin.begin(), s_origin.end());
+    vector_insert_execute(m_v, m_v.end(), m_origin.begin(), m_origin.end());
 }
 
 int main(void) {

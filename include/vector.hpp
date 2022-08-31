@@ -361,23 +361,23 @@ namespace ft {
 				difference_type	pos = position - begin();
 
 				pointer p = _begin + pos;
-				_alloc.destroy(p);
+				// _alloc.destroy(p);
 
-				for (difference_type i = 0; i < _end - (p + 1); ++i)
-					*(p + i) = *(p + 1 + i);
+				_copy_value(_begin + pos + 1, _end, _begin + pos);
 				_size -= 1;
 				_end = _begin + _size;
 				return (iterator(p));
 			}
 
 			iterator erase (iterator first, iterator last) {
-				size_type	len;
+				difference_type pos = first - begin();
+				difference_type	len;
 
 				len = last - first;
 
-				for (size_type i = 0; i < len; ++i) {
-					erase(first);
-				}
+				_copy_value(_begin + pos + len, _end, _begin + pos);
+				_size -= len;
+				_end = _begin + _size;
 				return first;
 			}
 
