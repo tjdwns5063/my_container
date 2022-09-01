@@ -91,7 +91,7 @@ void    map_erase_performance_test() {
     std::map<int, int> s_m;
     ft::map<int, int> m_m;
 
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         s_m.insert(std::make_pair(i, i + 1));
         m_m.insert(ft::make_pair(i, i + 1));
     }

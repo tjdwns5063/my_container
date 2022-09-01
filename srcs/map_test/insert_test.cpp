@@ -94,7 +94,7 @@ void    map_insert_performance_test() {
     ft::map<int, std::string> m_origin;
     ft::map<int, std::string> m_m;
 
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         s_origin.insert(std::make_pair(i, std::string(1, (i % 10) + 'a')));
         m_origin.insert(ft::make_pair(i, std::string(1, (i % 10) + 'a')));
     }

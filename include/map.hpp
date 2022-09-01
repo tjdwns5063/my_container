@@ -2,6 +2,7 @@
 # define MAP_HPP
 
 #include <algorithm>
+#include <iostream>
 #include "vector.hpp"
 #include "comp_algorithm.hpp"
 #include "map_iterator.hpp"
@@ -60,7 +61,8 @@ private:
 		RR,
 		LL,
 		RL,
-		LR
+		LR,
+		NONE
 	};
 
 	iterator									_iter;
@@ -71,13 +73,7 @@ private:
 	node_pointer								_super_node;
 	node_pointer								_root;
 
-	void	preorder_traversal(node_pointer root) {
-		if (!root)
-			return ;
-		std::cout << root->_val.first << " " << root->_val.second << '\n';
-		preorder_traversal(root->_left);
-		preorder_traversal(root->_right);
-	}
+
 
 	node_pointer	make_node(value_type val) {
 		node_pointer ret = _node_alloc.allocate(1);
@@ -101,68 +97,69 @@ private:
 		clear_map(right);
 	}
 
-	node_pointer	append_node_recursive(node_pointer root, node_pointer parent, const value_type& val) {
-		if (!root) {
-			if (_key_comp(parent->_val.first, val.first)) { //parent->_val.first < val.first
-				root = make_node(val);
-				root->_parent = parent;
-				parent->_right = root;
-			} else if (parent->_val.first != val.first) {
-				root = make_node(val);
-				root->_parent = parent;
-				parent->_left = root;
+	node_pointer	search_insert_at(const value_type& val) const {
+		node_pointer	node = _root;
+
+		if (!node) {
+			return _super_node;
+		}
+		while (node) {
+			if (_key_comp(node->_val.first, val.first)) {
+				if (node->_right)
+					node = node->_right;
+				else
+					return (node);
 			}
-			return root;
+			else if (_key_comp(val.first, node->_val.first)) {
+				if (node->_left)
+					node = node->_left;
+				else
+					return (node);
+			}
+			else
+				return (node);
 		}
-		if (_key_comp(root->_val.first, val.first)) { //root->_val.first < val.first
-			return append_node_recursive(root->_right, root, val);
-		} else if (root->_val.first != val.first) { //root->_val.first > val.first
-			return append_node_recursive(root->_left, root, val);
-		}
-		return NULL;
+		return (NULL);
 	}
 
-	node_pointer append_node_iterate(const value_type& val) {
-		node_pointer curr_root = _root;
-		node_pointer parent = _root->_parent;
-
-		while (curr_root) {
-			if (_key_comp(curr_root->_val.first, val.first)) {
-				parent = curr_root;
-				curr_root = curr_root->_right;
-			}
-			else if (curr_root->_val.first != val.first) {
-				parent = curr_root;
-				curr_root = curr_root->_left;
-			}
-			else {
-				return (curr_root);
-			}
+	void	release_height(node_pointer node) {
+		size_type	curr_height = node->_height;
+		while (node != _super_node) {
+			node->_height = std::max(curr_height, node->_height);
+			node = node->_parent;
+			++curr_height;
 		}
-		curr_root = make_node(val);
-		curr_root->_parent = parent;
-		if (_key_comp(curr_root->_parent->_val.first, val.first)) {
-			curr_root->_parent->_right = curr_root;
+	}
+
+	void	release_height_delete(node_pointer node) {
+		while (node != _super_node) {
+			if (node->_parent->_height - node->_height == 1) {
+				--node->_parent->_height;
+			}
+			node = node->_parent;
+		}
+	}
+
+	pair<iterator, bool>	append_node(node_pointer parent, const value_type& val) {
+		if (parent == _super_node) {
+			_root = make_node(val);
+			_root->_parent = parent;
+			parent->_left = _root;
+			return (ft::make_pair(iterator(_root), true));
+		}
+		if (_key_comp(parent->_val.first, val.first)) {
+			parent->_right = make_node(val);
+			parent->_right->_parent = parent;
+			release_height(parent->_right);
+			return (ft::make_pair(iterator(parent->_right), true));
+		} else if (_key_comp(val.first, parent->_val.first)) {
+			parent->_left = make_node(val);
+			parent->_left->_parent = parent;
+			release_height(parent->_left);
+			return (ft::make_pair(iterator(parent->_left), true));
 		} else {
-			curr_root->_parent->_left = curr_root;
+			return (ft::make_pair(iterator(parent), false));
 		}
-		return (curr_root);
-	}
-
-	node_pointer	search_node_recursive(const key_type& k, node_pointer root) const {
-		if (!root || root->_val.first == k)
-			return root;
-		node_pointer	ret = NULL;
-		if (_key_comp(root->_val.first, k)) {
-			ret = search_node_recursive(k, root->_right);
-			if (!ret)
-				return ret;
-		} else if (root->_val.first != k) {
-			ret = search_node_recursive(k, root->_left);
-			if (!ret)
-				return ret;
-		}
-		return ret;
 	}
 
 	node_pointer	search_node_iterate(const key_type& k) const {
@@ -197,13 +194,18 @@ private:
 			p->_parent->_right = NULL;
 		if (p == _root)
 			_root = p->_parent->_left;
+		if (node_child_cnt(p->_parent) == NO)
+			release_height_delete(p);
 		_node_alloc.deallocate(p, 1); // 메모리 해제
 		_node_alloc.destroy(p); // 소멸자 호출
+		// std::cout << "check_node\n";
+		// preorder_traversal(_root);
+		// std::cout << "check_end\n";
 	}
 
 	void	delete_one_child_node(node_pointer p) {
 		// std::cout << "One\n";
-
+		release_height_delete(p);
 		if (p->_parent->_left == p) {
 			if (p->_left) {
 				p->_parent->_left = p->_left;
@@ -230,17 +232,18 @@ private:
 	}
 
 	void	delete_two_child_node(node_pointer p) {
+		// std::cout << "TWO\n";
 		node_pointer	min_left = p->_right;
-		// std::cout << "target: " << p->_val.first << '\n';
 
 		while (min_left->_left) {
 			min_left = min_left->_left;
 		}
-
 		if (min_left != p->_right) {
 			min_left->_parent->_left = min_left->_right;
-			if (min_left->_right)
+			if (min_left->_right) {
+				// --min_left->_right->_height;
 				min_left->_right->_parent = min_left->_parent;
+			}
 			min_left->_right = p->_right;
 			min_left->_right->_parent = min_left;
 		}
@@ -257,6 +260,10 @@ private:
 		if (p == _root) {
 			_root = min_left;
 		}
+		size_type l_h = (p->_right->_left) ? p->_right->_left->_height : 0;
+		size_type r_h = (p->_right->_right) ? p->_right->_right->_height : 0;
+		p->_right->_height = std::max(l_h, r_h) + 1;
+		min_left->_height = p->_right->_height + 1;
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
 	}
@@ -292,8 +299,11 @@ private:
 		return (1 + std::max(get_node_height(node->_left), get_node_height(node->_right)));
 	}
 
-	ssize_t	get_balanced_factor(node_pointer ptr) {
-		return get_node_height(ptr->_left) - get_node_height(ptr->_right);
+	difference_type	get_balanced_factor(node_pointer ptr) {
+		size_type	left_h = (ptr->_left) ? ptr->_left->_height : 0;
+		size_type	right_h = (ptr->_right) ? ptr->_right->_height : 0;
+
+		return left_h - right_h;
 	}
 
 	// node_pointer	check_balanced_factor(node_pointer root, node_pointer target) {
@@ -309,37 +319,40 @@ private:
 	// 	return target;
 	// }
 
-	node_pointer	check_balanced_factor(const key_type& k) {
+	pair<node_pointer, difference_type>	check_balanced_factor(const key_type& k) {
 		node_pointer	curr_root = _root;
 		node_pointer	target = NULL;
-		ssize_t			balanced_factor = 0;
+		difference_type target_bf = 0;
+		difference_type	balanced_factor = 0;
 
 		while (curr_root && curr_root->_val.first != k) {
 			balanced_factor = get_balanced_factor(curr_root);
 			if (abs(balanced_factor) > 1) {
 				target = curr_root;
+				target_bf = balanced_factor;
 			}
 			if (_key_comp(curr_root->_val.first, k)) {
 				curr_root = curr_root->_right;
-			} else if (curr_root->_val.first != k) {
+			} else if (_key_comp(k, curr_root->_val.first)) {
 				curr_root = curr_root->_left;
 			}
 		}
-		return target;
+		return ft::make_pair(target, target_bf);
 	}
 
-	e_rotate_state	check_rotate_state(node_pointer target) {
-		ssize_t balanced_factor = get_balanced_factor(target);
-
-		// std::cout << "bf: " << balanced_factor << '\n';
-
-		if (balanced_factor > 1 && get_balanced_factor(target->_left) >= 0)
-			return (LL);
-		else if (balanced_factor > 1 && get_balanced_factor(target->_left) < 0)
-			return (LR);
-		else if (balanced_factor < -1 && get_balanced_factor(target->_right) <= 0)
-			return (RR);
-		return (RL);
+	e_rotate_state	check_rotate_state(node_pointer target, difference_type target_bf) {
+		if (target_bf > 1) {
+			if (target->_left->_left)
+				return (LL);
+			else if (target->_left->_right)
+				return (LR);
+		} else if (target_bf < 1) {
+			if (target->_right->_right)
+				return (RR);
+			else if (target->_right->_left)
+				return (RL);
+		}
+		return (NONE);
 	}
 
 	void	rotate_right(node_pointer target) {
@@ -360,6 +373,11 @@ private:
 		if (target == _root) {
 			_root = child;
 		}
+		target->_height = child->_height - 1;
+		if (target->_left)
+			target->_left->_height = target->_height - 1;
+		if (target->_right)
+			target->_right->_height = target->_height - 1;
 	}
 
 	void	rotate_left(node_pointer target) {
@@ -380,34 +398,41 @@ private:
 		if (target == _root) {
 			_root = child;
 		}
+		target->_height = child->_height - 1;
+		if (target->_left)
+			target->_left->_height = target->_height - 1;
+		if (target->_right)
+			target->_right->_height = target->_height - 1;
 	}
 
 	bool	rotate_tree(const key_type& k) {
-		node_pointer	target = check_balanced_factor(k);
+		pair<node_pointer, difference_type>	target_info = check_balanced_factor(k);
 
-		if (!target) {
+		if (!target_info.first) {
 			return false;
 		}
 		// std::cout << "root: " << root->_val.first << '\n';
 		// std::cout << "target: " << target->_val.first << '\n';
-		switch (check_rotate_state(target)) {
+		switch (check_rotate_state(target_info.first, target_info.second)) {
+			case NONE:
+				return false;
 			case LL:
 				// std::cout << "LL\n";
-				rotate_right(target);
+				rotate_right(target_info.first);
 				break ;
 			case RR:
 				// std::cout << "RR\n";
-				rotate_left(target);
+				rotate_left(target_info.first);
 				break ;
 			case LR:
 				// std::cout << "LR\n";
-				rotate_left(target->_left);
-				rotate_right(target);
+				rotate_left(target_info.first->_left);
+				rotate_right(target_info.first);
 				break ;
 			case RL:
 				// std::cout << "RL\n";
-				rotate_right(target->_right);
-				rotate_left(target);
+				rotate_right(target_info.first->_right);
+				rotate_left(target_info.first);
 				break ;
 		}
 		return true;
@@ -450,6 +475,18 @@ public:
 			insert(x.begin(), x.end());
 		}
 		return (*this);
+	}
+
+	void	preorder_traversal(node_pointer root) {
+		if (!root)
+			return ;
+		std::cout << "key: " << root->_val.first << " value: " << root->_val.second << " height: " << root->_height << '\n';
+		preorder_traversal(root->_left);
+		preorder_traversal(root->_right);
+	}
+
+	node_pointer	get_root(void) const {
+		return (_root);
 	}
 
 	iterator begin() {
@@ -536,23 +573,16 @@ public:
 	}
 
 	pair<iterator,bool> insert (const value_type& val) {
-		node_pointer	ret;
+		node_pointer			insert_at;
+		pair<iterator, bool>	ret;
 
-		if ((ret = search_node_iterate(val.first))) {
-			return ft::make_pair<iterator, bool>(iterator(ret), false);
-		}
-		if (!_root) {
-			_root = make_node(val);
-			_super_node->_left = _root;
-			_root->_parent = _super_node;
-			ret = _root;
-		} else {
-			// ret = append_node(_root, _root->_parent, val);
-			ret = append_node_iterate(val);
+		insert_at = search_insert_at(val);
+		ret = append_node(insert_at, val);
+		if (ret.second) {
+			++_size;
 			rotate_tree(val.first);
 		}
-		++_size;
-		return ft::make_pair<iterator, bool>(iterator(ret), true);
+		return (ret);
 	}
 
 	iterator insert (iterator position, const value_type& val) {
