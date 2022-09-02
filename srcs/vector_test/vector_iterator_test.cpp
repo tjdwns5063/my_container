@@ -148,13 +148,6 @@ void	vector_reverse_iterator_test() {
 }
 
 int main(void) {
-	std::cout << std::boolalpha << (s_v.begin() == s_v.end()) << '\n';
-	std::cout << std::boolalpha << (m_v.begin() == m_v.end()) << '\n';
-
-	for (int i = 0; i < 5; ++i) {
-		s_v.push_back(i + 1);
-		m_v.push_back(i + 1);
-	}
 	vector_iterator_test();
 	vector_reverse_iterator_test();
 }

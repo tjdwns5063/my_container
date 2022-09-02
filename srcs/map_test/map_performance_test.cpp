@@ -97,6 +97,6 @@ void    map_find_performance_test() {
 
 int main() {
     map_insert_performance_test();
-    // map_erase_performance_test();
-    // map_find_performance_test();
+    map_erase_performance_test();
+    map_find_performance_test();
 }

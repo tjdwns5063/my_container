@@ -1,21 +1,5 @@
 #include "vector_test.hpp"
 
-template <typename VEC, typename A1>
-void    vector_erase_execute(VEC& vec, A1 arg1) {
-    struct timeval start;
-    struct timeval end;
-    long    micro_sec;
-    std::string vec_type;
-
-    vec_type = (typeid(vec).name() == typeid(std::vector<typename VEC::value_type>).name()) ? "STD" : "FT";
-    std::cout << "[ " << vec_type  << " ]\n";
-    gettimeofday(&start, NULL);
-    vec.erase(arg1);
-    gettimeofday(&end, NULL);
-    micro_sec = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
-    std::cout << "micro sec: " << micro_sec << "us\n";
-}
-
 template <typename VEC, typename A1, typename A2>
 void    vector_erase_execute(VEC& vec, A1 arg1, A2 arg2) {
     struct timeval start;
@@ -72,10 +56,6 @@ void    vector_erase_one_item_test(void) {
 
     c_s_v.insert(c_s_v.begin() + 1, "item3");
     c_m_v.insert(c_m_v.begin() + 1, "item3");
-
-    std::cout << "-------vector_erase_single_item performance_test-------------\n";
-    vector_erase_execute(c_s_v, c_s_v.begin() + 2);
-    vector_erase_execute(c_m_v, c_m_v.begin() + 2);
 }
 
 void    vector_erase_range_test(void) {
@@ -124,7 +104,7 @@ void    vector_erase_range_test(void) {
     std::vector<std::string>    s_erase;
     ft::vector<std::string>     m_erase;
 
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 100000; ++i) {
         s_erase.push_back(std::string(1, (i % 10) + 'a'));
         m_erase.push_back(std::string(1, (i % 10) + 'a'));
     }

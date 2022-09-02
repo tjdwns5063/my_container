@@ -477,7 +477,7 @@ public:
 	}
 
 	const_iterator	end() const {
-		return (iterator(_super_node));
+		return (const_iterator(iterator(_super_node)));
 	}
 
 	reverse_iterator rbegin() {
@@ -485,7 +485,7 @@ public:
 	}
 
 	const_reverse_iterator rbegin() const {
-		return static_cast<const_reverse_iterator>(rbegin());
+		return const_reverse_iterator(end());
 	}
 
 	reverse_iterator rend() {
@@ -493,7 +493,7 @@ public:
 	}
 
 	const_reverse_iterator rend() const {
-		return static_cast<const_reverse_iterator>(rend());
+		return const_reverse_iterator(begin());
 	}
 
 	bool empty() const {

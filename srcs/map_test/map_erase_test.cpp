@@ -34,16 +34,6 @@ void map_erase_single_item_test() {
     print_map(s_m);
     print_map(m_m);
     std::cout << "----------------------------------\n";
-
-    // for (std::map<int, std::string>::iterator it = s_m.begin(); it != s_m.end(); ++it) {
-    //     std::cout << it->first << '\n';
-    //     s_m.erase(it);
-    // }
-    // for (ft::map<int, std::string>::iterator it = m_m.begin(); it != m_m.end(); ++it) {
-    //     m_m.erase(it);
-    // }
-    // print_map(s_m);
-    // print_map(m_m);
 }
 
 void map_erase_range_test() {
@@ -60,8 +50,6 @@ void map_erase_range_test() {
     print_map(m_m);
     std::cout << "----------------------------------\n";
 
-    // s_m.erase(s_m.begin(), s_m.end());
-    // m_m.erase(m_m.begin(), m_m.end());
     s_m.erase(++(++s_m.begin()), --s_m.end());
     m_m.erase(++(++m_m.begin()), --m_m.end());
     print_map(s_m);

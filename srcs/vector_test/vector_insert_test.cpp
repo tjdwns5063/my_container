@@ -1,21 +1,5 @@
 #include "vector_test.hpp"
 
-template <typename VEC, typename A1, typename A2>
-void    vector_insert_execute(VEC& vec, A1 arg1, A2 arg2) {
-    struct timeval start;
-    struct timeval end;
-    long    micro_sec;
-    std::string vec_type;
-
-    vec_type = (typeid(vec).name() == typeid(std::vector<typename VEC::value_type>).name()) ? "STD" : "FT";
-    std::cout << "[ " << vec_type  << " ]\n";
-    gettimeofday(&start, NULL);
-    vec.insert(arg1, arg2);
-    gettimeofday(&end, NULL);
-    micro_sec = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
-    std::cout << "micro sec: " << micro_sec << "us\n";
-}
-
 template <typename VEC, typename A1, typename A2, typename A3>
 void    vector_insert_execute(VEC& vec, A1 arg1, A2 arg2, A3 arg3) {
     struct timeval start;
@@ -74,10 +58,6 @@ void    vector_insert_single_elem_test(void) {
     print_vec(m_v);
     std::cout << "*s_it: " << *s_it << '\n';
     std::cout << "*m_it: " << *m_it << '\n';
-
-    std::cout << "------vector_single_item_insert_performance_test-------\n";
-    vector_insert_execute(s_v, s_v.begin() + 1, 3);
-    vector_insert_execute(m_v, m_v.begin() + 1, 3);
 }
 
 void    vector_insert_fill_test(void) {
