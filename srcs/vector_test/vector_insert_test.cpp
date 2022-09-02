@@ -119,7 +119,7 @@ void    vector_insert_range_test(void) {
     std::vector<int> s_origin;
     ft::vector<int> m_origin;
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 100000; ++i) {
         s_origin.push_back(i + 1);
         m_origin.push_back(i + 1);
     }

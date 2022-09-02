@@ -100,7 +100,7 @@ void    vector_erase_range_test(void) {
     print_vec(s_v);
     print_vec(m_v);
 
-    std::cout << "-------vector_erase_single_item performance_test-------------\n";
+    std::cout << "-------vector_erase_range_item performance_test-------------\n";
     std::vector<std::string>    s_erase;
     ft::vector<std::string>     m_erase;
 
