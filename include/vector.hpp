@@ -2,6 +2,7 @@
 # define VECTOR_HPP
 
 #include <memory>
+#include <algorithm>
 #include "iterator.hpp"
 #include "enable_if.hpp"
 #include "is_integral.hpp"
@@ -43,18 +44,15 @@ namespace ft {
 			void	_allocate(size_type n) {
 				pointer	t_begin = 0;
 				size_type	capacity = _capacity;
+
 				if (_capacity >= n)
 					return ;
 				_capacity = n;
-				try {
-					t_begin = _alloc.allocate(_capacity);
-					_copy_value(_begin, _end, t_begin);
-					_alloc.deallocate(_begin, capacity);
-					_begin = t_begin;
-					_end = _begin + _size;
-				} catch (std::bad_alloc& err) {
-					// std::cout << "allocate_error\n";
-				}
+				t_begin = _alloc.allocate(_capacity);
+				_copy_value(_begin, _end, t_begin);
+				_alloc.deallocate(_begin, capacity);
+				_begin = t_begin;
+				_end = _begin + _size;
 			}
 
 			void	_shallow_copy(vector& x, vector& y) {
@@ -66,7 +64,6 @@ namespace ft {
 			}
 
 		public:	
-		//Constructor, Destructor, Assign operator
 			explicit vector (const allocator_type& alloc = allocator_type())
 				: _begin(NULL), _end(NULL), _alloc(alloc), _capacity(0), _size(0) {}
 
@@ -86,10 +83,7 @@ namespace ft {
 			}
 
 			~vector() {
-				// _alloc.deallocate(_begin, _capacity);
-				// _alloc.destroy(_begin.base());
-				// std::cout << "destruct call\n";
-				// system("leaks a.out");
+				_alloc.deallocate(_begin, _capacity);
 			}
 
 			vector& operator=( const vector& other ) {
@@ -97,7 +91,6 @@ namespace ft {
 				return (*this);
 			}
 
-			//Iterator		
 			iterator begin() {
 				return (iterator(_begin));
 			}
@@ -129,7 +122,6 @@ namespace ft {
 				return (const_reverse_iterator(_begin));
 			}
 
-		//Capacity
 			size_type	capacity(void) const {
 				return (_capacity);
 			}
@@ -139,23 +131,6 @@ namespace ft {
 			}
 
 			void	resize(size_type n, value_type val = value_type()) {
-				// if (n < _size) {
-				// 	std::cout << "1\n";
-				// 	_size = n;
-				// }
-				// else if (n > _size && n <= _capacity) {
-				// 	std::cout << "2\n";
-				// 	for (pointer ptr = _end; ptr != _begin + n; ++ptr)
-				// 		*ptr = val;
-				// 	_size = n;
-				// }
-				// else if (n > _capacity) {
-				// 	std::cout << "3\n";
-				// 	_allocate(_capacity * 2);
-				// 	for (pointer ptr = _end; ptr != _begin + n; ++ptr)
-				// 		*ptr = val;
-				// 	_size = n;
-				// }
 				if (n < _size) {
 					_size = n;
 					_end = _begin + _size;
@@ -185,7 +160,7 @@ namespace ft {
 			void reserve (size_type n) {
 				_allocate(n);
 			}
-		//Element Access
+
 			reference operator[] (size_type n) {
 				return (*(_begin + n));
 			}
@@ -219,7 +194,7 @@ namespace ft {
 			const_reference back() const {
 				return (*(end() - 1));
 			}
-		// Modifiers
+
 			void assign( size_type count, const value_type& value ) {
 				_allocate(count);
 				for (size_type i = 0; i < _capacity; i++) {
@@ -266,7 +241,6 @@ namespace ft {
 			iterator insert (iterator position, const value_type& val) {
 				difference_type offset = position.base() - _begin;
 
-				// std::cout << "offset : " << offset << '\n';
 				if (_begin + offset == _end) {
 					push_back(val);
 				} else {
@@ -321,7 +295,7 @@ namespace ft {
 				for (InputIt it = first; it != last; it++)
 					++len;
 				if (_size + len >= _capacity) {
-					size_t capacity = (len + _size > _capacity * 2) ? len + _size : _capacity * 2;//std::max(len, _capacity * 2);
+					size_t capacity = std::max(len + _size, _capacity * 2); //(len + _size > _capacity * 2) ? len + _size : _capacity * 2;
 					_allocate(capacity);
 				}
 				if (_begin + offset == _end) {
@@ -337,31 +311,14 @@ namespace ft {
 					}
 					_copy_value(temp_ptr, temp_ptr + temp_size, _begin + offset + len);
 				}
-				// for (iterator it = end() + len; it != begin() + offset; it--)
-				// 	*it = *(it - len);
-				// pos = _begin + offset;
-				// for (InputIt it = first; it != last; it++)
-				// 	*(pos++) = *it;
 				_size += len;
 				_end = _begin + _size;
 			}
-			// template <class _Tp, class _Allocator>
-			// inline _LIBCPP_INLINE_VISIBILITY
-			// void
-			// __vector_base<_Tp, _Allocator>::__destruct_at_end(pointer __new_last) _NOEXCEPT
-			// {
-			// 	pointer __soon_to_be_end = __end_;
-			// 	while (__new_last != __soon_to_be_end)
-			// 		__alloc_traits::destroy(__alloc(), _VSTD::__to_address(--__soon_to_be_end));
-			// 	__end_ = __new_last;
-			// }
-
 
 			iterator erase (iterator position) {
 				difference_type	pos = position - begin();
 
 				pointer p = _begin + pos;
-				// _alloc.destroy(p);
 
 				_copy_value(_begin + pos + 1, _end, _begin + pos);
 				_size -= 1;
@@ -394,12 +351,11 @@ namespace ft {
 				_size = 0;
 				_end = _begin + _size;
 			}
-		// Allocator
+
 			allocator_type get_allocator() const {
 				return (_alloc);
 			}
 	};
-		// relation operators
 		template <class T, class Alloc>
 		bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {
 			if (lhs.size() != rhs.size())

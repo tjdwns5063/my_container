@@ -9,10 +9,10 @@
 
 namespace ft {
 
-template < class Key,                                     // map::key_type
-           class T,                                       // map::mapped_type
-           class Compare = std::less<Key>,                     // map::key_compare
-           class Allocator = std::allocator<pair<const Key,T> > >    // map::allocator_type 
+template < class Key,
+           class T,
+           class Compare = std::less<Key>,
+           class Allocator = std::allocator<pair<const Key,T> > >
 class map {
 public:
     typedef Key                                      	key_type;
@@ -77,11 +77,8 @@ private:
 
 	node_pointer	make_node(value_type val) {
 		node_pointer ret = NULL;
-		try {
-			ret = _node_alloc.allocate(1);
-		} catch (std::bad_alloc& e) {
-			std::cout << "alloc_error\n";
-		}
+
+		ret = _node_alloc.allocate(1);
 		_node_alloc.construct(ret, Node<value_type>(val));
 		return (ret);
 	}
@@ -92,10 +89,7 @@ private:
 		node_pointer left = root->_left;
 		node_pointer right = root->_right;
 
-		// delete (*root);
-		// std::cout << "clear: " << root->_val.first << '\n';
 		_node_alloc.deallocate(root, sizeof(node));
-		// _node_alloc.destroy(root);
 		root = 0;
 		clear_map(left);
 		clear_map(right);
@@ -136,10 +130,9 @@ private:
 	}
 
 	void	release_height_delete(node_pointer node) {
+		node->_height = get_node_height(node);
 		while (node != _super_node) {
-			size_type l_h = (node->_parent->_left) ? node->_parent->_left->_height : 0;
-			size_type r_h = (node->_parent->_right) ? node->_parent->_right->_height : 0;
-			node->_parent->_height = std::max(l_h, r_h) + 1;
+			node->_parent->_height = get_node_height(node->_parent);
 			node = node->_parent;
 		}
 	}
@@ -199,11 +192,8 @@ private:
 			_root = p->_parent->_left;
 		if (node_child_cnt(p->_parent) == NO)
 			release_height_delete(p);
-		_node_alloc.deallocate(p, 1); // 메모리 해제
-		_node_alloc.destroy(p); // 소멸자 호출
-		p = 0;
-		// preorder_traversal(_root);
-		// std::cout << "check_end\n";
+		_node_alloc.deallocate(p, 1);
+		_node_alloc.destroy(p);
 	}
 
 	void	delete_one_child_node(node_pointer p) {
@@ -243,7 +233,6 @@ private:
 		if (min_left != p->_right) {
 			min_left->_parent->_left = min_left->_right;
 			if (min_left->_right) {
-				// --min_left->_right->_height;
 				min_left->_right->_parent = min_left->_parent;
 			}
 			min_left->_right = p->_right;
@@ -262,12 +251,7 @@ private:
 		if (p == _root) {
 			_root = min_left;
 		}
-		min_left->_height = get_node_height(min_left);
 		release_height_delete(min_left);
-		// size_type l_h = (p->_right->_left) ? p->_right->_left->_height : 0;
-		// size_type r_h = (p->_right->_right) ? p->_right->_right->_height : 0;
-		// p->_right->_height = std::max(l_h, r_h) + 1;
-		// min_left->_height = p->_right->_height + 1;
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
 		p = 0;
@@ -289,11 +273,10 @@ private:
 				delete_two_child_node(searched_node);
 				break ;
 		}
-		// rotate_tree(k);
 		return searched_node;
 	}
 
-	size_type	get_node_height(node_pointer ptr) { // 알맞은 높이를 계산.
+	size_type	get_node_height(node_pointer ptr) {
 		size_type	l_h = 0;
 		size_type	r_h = 0;
 
@@ -312,19 +295,6 @@ private:
 
 		return left_h - right_h;
 	}
-
-	// node_pointer	check_balanced_factor(node_pointer root, node_pointer target) {
-	// 	ssize_t balanced_factor = get_balanced_factor(root);
-
-	// 	if (!root) {
-	// 		return target;
-	// 	} else if (abs(balanced_factor) > 1) {
-	// 		target = root;
-	// 	}
-	// 	target = check_balanced_factor(root->_left, target);
-	// 	target = check_balanced_factor(root->_right, target);
-	// 	return target;
-	// }
 
 	pair<node_pointer, difference_type>	check_balanced_factor(const key_type& k) {
 		node_pointer	curr_root = _root;
@@ -459,7 +429,6 @@ public:
 	   }
 
 	map (const map& x): _alloc(x._alloc), _key_comp(x._key_comp), _size(0), _super_node(make_node(pair<key_type, mapped_type>())), _root(NULL) {
-		// std::cout << "copy constructor called\n";
 		insert(x.begin(), x.end());
 	}
 
@@ -467,9 +436,6 @@ public:
 
 
 	map& operator= (const map& x) {
-		// std::cout << "assign constructor called\n";
-		// if (*this == x)
-		// 	return (*this);
 		if (empty()) {
 			_alloc = x._alloc;
 			_key_comp = x._key_comp;
@@ -482,18 +448,6 @@ public:
 			insert(x.begin(), x.end());
 		}
 		return (*this);
-	}
-
-	void	preorder_traversal(node_pointer root) {
-		if (!root)
-			return ;
-		std::cout << "key: " << root->_val.first << " value: " << root->_val.second << " height: " << root->_height << '\n';
-		preorder_traversal(root->_left);
-		preorder_traversal(root->_right);
-	}
-
-	node_pointer	get_root(void) const {
-		return (_root);
 	}
 
 	iterator begin() {
@@ -591,9 +545,6 @@ public:
 	iterator insert (iterator position, const value_type& val) {
 		pair<iterator, bool> pair = insert(val);
 		(void)position;
-		// position의 부모노드를 확인하여 subtree만 돌고도 추가 가능한지 여부 체크
-		// 불가능하다면 기존의 insert로 트리 전부 순회
-		// 가능하다면 position의 서브 트리만 순회하여 insert
 		return pair.first;
 	}
 

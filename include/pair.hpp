@@ -11,7 +11,6 @@ namespace ft {
 		first_type	first;
 		second_type	second;
 
-		//constructor and assignment operator
 		pair(): first(), second() {}
 		pair(T1 const& _t1, T2 const& _t2): first(_t1), second(_t2) {}
 		template <class _U1, class _U2>
@@ -23,7 +22,6 @@ namespace ft {
 		}
 	};
 
-	// compare operator
 	template <class _T1, class _T2>
 	bool operator== (const pair<_T1,_T2>& lhs, const pair<_T1,_T2>& rhs) {
 		return (lhs.first == rhs.first) && (lhs.second == rhs.second);
