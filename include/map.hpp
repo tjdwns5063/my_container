@@ -201,6 +201,7 @@ private:
 			release_height_delete(p);
 		_node_alloc.deallocate(p, 1); // 메모리 해제
 		_node_alloc.destroy(p); // 소멸자 호출
+		p = 0;
 		// preorder_traversal(_root);
 		// std::cout << "check_end\n";
 	}
@@ -230,6 +231,7 @@ private:
 			_root = p->_parent->_left;
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
+		p = 0;
 	}
 
 	void	delete_two_child_node(node_pointer p) {
@@ -268,13 +270,14 @@ private:
 		// min_left->_height = p->_right->_height + 1;
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
+		p = 0;
 	}
 
-	bool	delete_node(const key_type& k) {
+	node_pointer	delete_node(const key_type& k) {
 		node_pointer searched_node = search_node_iterate(k);
 
 		if (!searched_node)
-			return false;
+			return NULL;
 		switch (node_child_cnt(searched_node)) {
 			case NO:
 				delete_leaf_node(searched_node);
@@ -286,7 +289,8 @@ private:
 				delete_two_child_node(searched_node);
 				break ;
 		}
-		return true;
+		// rotate_tree(k);
+		return searched_node;
 	}
 
 	size_type	get_node_height(node_pointer ptr) { // 알맞은 높이를 계산.
@@ -515,15 +519,11 @@ public:
 	}
 
 	iterator end() {
-		if (!_root)
-			return (iterator(_super_node));
-		return (iterator(_root->_parent));
+		return (iterator(_super_node));
 	}
 
 	const_iterator	end() const {
-		if (!_root)
-			return (iterator(_super_node));
-		return (iterator(_root->_parent));
+		return (iterator(_super_node));
 	}
 
 	reverse_iterator rbegin() {
@@ -611,26 +611,23 @@ public:
 	size_type erase (const key_type& k) {
 		if (delete_node(k)) {
 			--_size;
-			// std::cout << "-----------------------------------\n";
-			// preorder_traversal(_root);
-			// std::cout << "-----------------------------------\n";
 			rotate_tree(k);
 			return 1;
 		}
-		// preorder_traversal(_root);
 		return 0;
 	}
 
 	void erase (iterator first, iterator last) {
-		iterator	prev;
+		iterator prev;
+
 		while (first != last) {
 			prev = first;
 			++first;
-			// erase(prev);
-			if (delete_node(prev->first))
-				--_size;			
+			if (delete_node(prev->first)) {
+				--_size;
+				rotate_tree(first->first);
+			}
 		}
-		rotate_tree(prev->first);
 	}
 
 	void swap (map& x) {

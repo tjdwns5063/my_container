@@ -85,8 +85,6 @@ namespace ft {
 		typedef ptrdiff_t					difference_type;
 		typedef value_type&					reference;
 		typedef value_type*					pointer;
-	protected:
-		// node_pointer _p;
 	public:
 		map_iterator(): map_iterator_base<_Tp>(NULL) {}
 		map_iterator(node_pointer p): map_iterator_base<_Tp>(p) {}
@@ -155,7 +153,6 @@ namespace ft {
 		typedef Node<_Tp>					node_type;
 		typedef typename node_type::pointer	node_pointer;
 		typedef	map_iterator<_Tp>			non_const_iterator;
-		// node_pointer _p;
 		map_const_iterator(node_pointer p): map_iterator_base<_Tp>(p) {}
 
 	public:
