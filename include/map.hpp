@@ -632,10 +632,13 @@ public:
 
 	void swap (map& x) {
 		node_pointer	temp_root = x._root;
+		node_pointer	temp_super_node = x._super_node;
 		size_type		temp_size = x._size;
 
 		x._root = this->_root;
+		x._super_node = this->_super_node;
 		x._size = this->_size;
+		this->_super_node = temp_super_node;
 		this->_root = temp_root;
 		this->_size = temp_size;
 	}

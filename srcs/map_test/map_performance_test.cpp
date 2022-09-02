@@ -57,11 +57,8 @@ void    map_erase_performance_test() {
         s_m.insert(std::make_pair(i, i + 1));
         m_m.insert(ft::make_pair(i, i + 1));
     }
-    // for (ft::map<int,int>::iterator it = m_m.begin(); it != m_m.end(); ++it) {
-    //     m_m.erase(it);
-    // }
-    map_erase_execute(s_m, s_m.begin(), s_m.end());
-    map_erase_execute(m_m, m_m.begin(), m_m.end());
+    map_erase_execute(s_m, ++s_m.begin(), --s_m.end());
+    map_erase_execute(m_m, ++m_m.begin(), --m_m.end());
 
     print_map(s_m);
     print_map(m_m);
