@@ -91,17 +91,17 @@ void    map_erase_performance_test() {
     std::map<int, int> s_m;
     ft::map<int, int> m_m;
 
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 200000; ++i) {
         s_m.insert(std::make_pair(i, i + 1));
         m_m.insert(ft::make_pair(i, i + 1));
     }
-
+    // m_m.preorder_traversal(m_m.get_root());
     map_erase_execute(s_m, s_m.begin(), s_m.end());
     map_erase_execute(m_m, m_m.begin(), m_m.end());
 }
 
 int main() {
-    map_erase_single_item_test();
-    map_erase_range_test();
+    // map_erase_single_item_test();
+    // map_erase_range_test();
     map_erase_performance_test();
 }

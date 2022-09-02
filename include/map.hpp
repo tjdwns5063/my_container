@@ -76,8 +76,12 @@ private:
 
 
 	node_pointer	make_node(value_type val) {
-		node_pointer ret = _node_alloc.allocate(1);
-
+		node_pointer ret = NULL;
+		try {
+			ret = _node_alloc.allocate(1);
+		} catch (std::bad_alloc& e) {
+			std::cout << "alloc_error\n";
+		}
 		_node_alloc.construct(ret, Node<value_type>(val));
 		return (ret);
 	}
@@ -187,7 +191,6 @@ private:
 	}
 
 	void	delete_leaf_node(node_pointer p) {
-		// std::cout << "Leaf\n";
 		if (p->_parent->_left == p)
 			p->_parent->_left = NULL;
 		else
@@ -198,13 +201,11 @@ private:
 			release_height_delete(p);
 		_node_alloc.deallocate(p, 1); // 메모리 해제
 		_node_alloc.destroy(p); // 소멸자 호출
-		// std::cout << "check_node\n";
 		// preorder_traversal(_root);
 		// std::cout << "check_end\n";
 	}
 
 	void	delete_one_child_node(node_pointer p) {
-		// std::cout << "One\n";
 		release_height_delete(p);
 		if (p->_parent->_left == p) {
 			if (p->_left) {
@@ -232,7 +233,6 @@ private:
 	}
 
 	void	delete_two_child_node(node_pointer p) {
-		// std::cout << "TWO\n";
 		node_pointer	min_left = p->_right;
 
 		while (min_left->_left) {
@@ -289,7 +289,7 @@ private:
 		return true;
 	}
 
-	size_type	get_node_height(node_pointer ptr) {
+	size_type	get_node_height(node_pointer ptr) { // 알맞은 높이를 계산.
 		size_type	l_h = 0;
 		size_type	r_h = 0;
 
@@ -303,8 +303,8 @@ private:
 	}
 
 	difference_type	get_balanced_factor(node_pointer ptr) {
-		size_type	left_h = get_node_height(ptr->_left);
-		size_type	right_h = get_node_height(ptr->_right);
+		size_type	left_h = (ptr->_left) ? ptr->_left->_height : 0;
+		size_type	right_h = (ptr->_right) ? ptr->_right->_height : 0;
 
 		return left_h - right_h;
 	}
@@ -376,8 +376,10 @@ private:
 		if (target == _root) {
 			_root = child;
 		}
-		child->_left->_height = get_node_height(child->_left);
-		child->_right->_height = get_node_height(child->_right);
+		if (child->_left)
+			child->_left->_height = get_node_height(child->_left);
+		if (child->_right)
+			child->_right->_height = get_node_height(child->_right);
 		child->_height = get_node_height(child);
 		child->_parent->_height = get_node_height(child->_parent);
 	}
@@ -400,8 +402,10 @@ private:
 		if (target == _root) {
 			_root = child;
 		}
-		child->_left->_height = get_node_height(child->_left);
-		child->_right->_height = get_node_height(child->_right);
+		if (child->_left)
+			child->_left->_height = get_node_height(child->_left);
+		if (child->_right)
+			child->_right->_height = get_node_height(child->_right);
 		child->_height = get_node_height(child);
 		child->_parent->_height = get_node_height(child->_parent);
 	}
@@ -412,8 +416,6 @@ private:
 		if (!target_info.first) {
 			return false;
 		}
-		// std::cout << "root: " << root->_val.first << '\n';
-		// std::cout << "target: " << target->_val.first << '\n';
 		switch (check_rotate_state(target_info.first, target_info.second)) {
 			case NONE:
 				return false;
@@ -624,8 +626,11 @@ public:
 		while (first != last) {
 			prev = first;
 			++first;
-			erase(prev);
+			// erase(prev);
+			if (delete_node(prev->first))
+				--_size;			
 		}
+		rotate_tree(prev->first);
 	}
 
 	void swap (map& x) {

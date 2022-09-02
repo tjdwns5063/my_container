@@ -42,15 +42,20 @@ int main(void) {
 	mp[90] = "8";
 
     std::cout << "-----------------------------------------\n";
-    mp.erase(25); // right != NULL; left != NULL
-	mp.erase(55); // right != NULL; left != NULL
-    mp.erase(24); // right != NULL; left != NULL
-	mp.erase(54); // right != NULL; left != NULL
-    mp.erase(22); // right != NULL; left != NULL
-	mp.erase(51); // right != NULL; left != NULL
-    mp.erase(21); // right != NULL; left != NULL
-	mp.erase(53); // right != NULL; left != NULL
-
+    mp.erase(25); // right != NULL; left != NULL OK
+	mp.erase(55); // right != NULL; left != NULL OK
+    mp.erase(24); // right != NULL; left != NULL Ok
+	mp.erase(54); // right != NULL; left != NULL OK
+    mp.erase(22); // right != NULL; left != NULL OK
+	mp.erase(51); // right != NULL; left != NULL OK
+    mp.erase(21); // right != NULL; left != NULL OK
+	mp.erase(53); // right != NULL; left != NULL OK
+	mp.erase(20); // OK leaf
+	mp.erase(23); // OK leaf
+	mp.erase(42); // OK Two
+	mp.erase(38); // OK leaf
+	mp.erase(35); // OK One
+	mp.erase(33); // OK leaf
 
     mp.preorder_traversal(mp.get_root());
 }
