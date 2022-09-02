@@ -133,9 +133,9 @@ private:
 
 	void	release_height_delete(node_pointer node) {
 		while (node != _super_node) {
-			if (node->_parent->_height - node->_height == 1) {
-				--node->_parent->_height;
-			}
+			size_type l_h = (node->_parent->_left) ? node->_parent->_left->_height : 0;
+			size_type r_h = (node->_parent->_right) ? node->_parent->_right->_height : 0;
+			node->_parent->_height = std::max(l_h, r_h) + 1;
 			node = node->_parent;
 		}
 	}
@@ -260,10 +260,12 @@ private:
 		if (p == _root) {
 			_root = min_left;
 		}
-		size_type l_h = (p->_right->_left) ? p->_right->_left->_height : 0;
-		size_type r_h = (p->_right->_right) ? p->_right->_right->_height : 0;
-		p->_right->_height = std::max(l_h, r_h) + 1;
-		min_left->_height = p->_right->_height + 1;
+		min_left->_height = get_node_height(min_left);
+		release_height_delete(min_left);
+		// size_type l_h = (p->_right->_left) ? p->_right->_left->_height : 0;
+		// size_type r_h = (p->_right->_right) ? p->_right->_right->_height : 0;
+		// p->_right->_height = std::max(l_h, r_h) + 1;
+		// min_left->_height = p->_right->_height + 1;
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
 	}
@@ -287,21 +289,22 @@ private:
 		return true;
 	}
 
-	// ssize_t	get_node_height(node_pointer ptr) {
-	// 	if (!ptr)
-	// 		return (0);
-	// 	return 1 + std::max(get_node_height(ptr->_left), get_node_height(ptr->_right));
-	// }
+	size_type	get_node_height(node_pointer ptr) {
+		size_type	l_h = 0;
+		size_type	r_h = 0;
 
-	ssize_t		get_node_height(node_pointer node) {
-		if (!node)
-			return (0);
-		return (1 + std::max(get_node_height(node->_left), get_node_height(node->_right)));
+		if (!ptr)
+			return 0;
+		if (ptr->_left)
+			l_h = ptr->_left->_height;
+		if (ptr->_right)
+			r_h = ptr->_right->_height;
+		return 1 + std::max(l_h, r_h);
 	}
 
 	difference_type	get_balanced_factor(node_pointer ptr) {
-		size_type	left_h = (ptr->_left) ? ptr->_left->_height : 0;
-		size_type	right_h = (ptr->_right) ? ptr->_right->_height : 0;
+		size_type	left_h = get_node_height(ptr->_left);
+		size_type	right_h = get_node_height(ptr->_right);
 
 		return left_h - right_h;
 	}
@@ -373,11 +376,10 @@ private:
 		if (target == _root) {
 			_root = child;
 		}
-		target->_height = child->_height - 1;
-		if (target->_left)
-			target->_left->_height = target->_height - 1;
-		if (target->_right)
-			target->_right->_height = target->_height - 1;
+		child->_left->_height = get_node_height(child->_left);
+		child->_right->_height = get_node_height(child->_right);
+		child->_height = get_node_height(child);
+		child->_parent->_height = get_node_height(child->_parent);
 	}
 
 	void	rotate_left(node_pointer target) {
@@ -398,11 +400,10 @@ private:
 		if (target == _root) {
 			_root = child;
 		}
-		target->_height = child->_height - 1;
-		if (target->_left)
-			target->_left->_height = target->_height - 1;
-		if (target->_right)
-			target->_right->_height = target->_height - 1;
+		child->_left->_height = get_node_height(child->_left);
+		child->_right->_height = get_node_height(child->_right);
+		child->_height = get_node_height(child);
+		child->_parent->_height = get_node_height(child->_parent);
 	}
 
 	bool	rotate_tree(const key_type& k) {
@@ -608,8 +609,10 @@ public:
 	size_type erase (const key_type& k) {
 		if (delete_node(k)) {
 			--_size;
-			rotate_tree(k);
+			// std::cout << "-----------------------------------\n";
 			// preorder_traversal(_root);
+			// std::cout << "-----------------------------------\n";
+			rotate_tree(k);
 			return 1;
 		}
 		// preorder_traversal(_root);
