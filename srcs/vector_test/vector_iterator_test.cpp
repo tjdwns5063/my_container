@@ -10,12 +10,18 @@ typedef ft::vector<int>::reverse_iterator m_rit;
 typedef ft::vector<int>::const_iterator m_cit;
 typedef ft::vector<int>::const_reverse_iterator m_crit;
 
-std::vector<int> s_v;
-ft::vector<int> m_v;
 
 void	vector_iterator_test() {
 	std::cout << "--------------vector_iterator_test--------------\n";
-	
+
+	std::vector<int> s_v;
+	ft::vector<int> m_v;
+
+	for (int i = 0; i < 10; ++i) {
+		s_v.push_back(i + 1);
+		m_v.push_back(i + 1);
+	}
+
 	s_it std_it = s_v.begin();
 	m_it my_it = m_v.begin();
 
@@ -74,7 +80,14 @@ void	vector_iterator_test() {
 
 void	vector_reverse_iterator_test() {
 	std::cout << "----------vector_reverse_iterator_test----------\n";
-	
+	std::vector<int> s_v;
+	ft::vector<int> m_v;
+
+	for (int i = 0; i < 10; ++i) {
+		s_v.push_back(i + 1);
+		m_v.push_back(i + 1);
+	}
+
 	s_rit std_rit = s_v.rbegin();
 	m_rit my_rit = m_v.rbegin();
 

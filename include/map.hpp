@@ -221,7 +221,6 @@ private:
 			_root = p->_parent->_left;
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
-		p = 0;
 	}
 
 	void	delete_two_child_node(node_pointer p) {
@@ -254,7 +253,6 @@ private:
 		release_height_delete(min_left);
 		_node_alloc.deallocate(p, 1);
 		_node_alloc.destroy(p);
-		p = 0;
 	}
 
 	node_pointer	delete_node(const key_type& k) {
@@ -560,9 +558,11 @@ public:
 	}
 
 	size_type erase (const key_type& k) {
+		key_type key = k;
+		
 		if (delete_node(k)) {
 			--_size;
-			rotate_tree(k);
+			rotate_tree(key);
 			return 1;
 		}
 		return 0;
